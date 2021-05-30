@@ -28,9 +28,9 @@ accessory_head_lights_data : czerw.head_light
 	low_beam_refracted_aspect: 4.000000
 	hi_beam_left_rot: (-3.500000, 5.000000, 0.000000)
 	hi_beam_right_rot: (-2.500000, -2.000000, 1.800000)
-	hi_beam_color: (0, 0, 20)				# czerwony, zielony, niebieski
+	hi_beam_color: (0, 0, 2)				# czerwony, zielony, niebieski
 	hi_beam_color_specular: (5.118181, 5.557453, 6.500000)
-	hi_beam_color_ambient: (0.3, 0, 0)		# TO KOLORUJE DALEJ
+	hi_beam_color_ambient: (0, 0.2, 0)		# TO KOLORUJE DALEJ
 	hi_beam_bias: 0.000000					# nic wielkiego nie robi, lepiej zostawic
 	hi_beam_range: 450.000000
 	hi_beam_angle: 80.000000
