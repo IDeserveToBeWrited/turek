@@ -2,7 +2,7 @@ SiiNunit
 {
 accessory_head_lights_data : czerw.head_light
 {
-	name: "Czerwonka"
+	name: "Nieb"
 	price: 600
 	unlock: 0
 	icon: "lamp_xenon_01"
