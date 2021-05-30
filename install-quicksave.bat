@@ -7,9 +7,11 @@ SET HOME_eTS=%HOME%\Documents\Euro Truck Simulator 2
 
 :check_ats
 if exist "%HOME_ATS%" goto install_ats
+goto end
 
 :check_ets
 if exist "%HOME_ETS%" goto install_ets
+goto end
 
 :install_ats
 for /D %%b in ("%HOME_ATS%\profiles\*")	do for %%a in (quicksave/*) do if exist "%%b\save\quicksave\" copy quicksave/%%a "%%b\save\quicksave\" >nul 2>&1
@@ -22,3 +24,4 @@ echo Zainstalowano w ETS2
 goto end
 
 :end
+pause

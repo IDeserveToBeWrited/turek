@@ -32,3 +32,4 @@ echo Zainstalowano w ETS2
 goto end
 
 :end
+pause
