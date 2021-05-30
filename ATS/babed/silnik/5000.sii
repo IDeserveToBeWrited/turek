@@ -1,0 +1,31 @@
+SiiNunit
+{
+accessory_engine_data : 1000.engine
+{
+	name: "XD engine"
+	price: 51730
+	unlock: 16
+	info[]: "600 @@hp@@ (447@@kw@@)"
+	info[]: "2@@dg@@050 @@lb_ft@@ (2779@@nm@@)"
+	info[]: "1@@dg@@050 @@rpm@@"
+
+	icon: "engine_volvo_d16"
+
+	torque: 5000
+	volume: 1.6
+
+	torque_curve[]: (100, 1)
+
+	rpm_idle: 500
+	rpm_limit: 5000
+	rpm_range_low_gear: (500, 5000)
+	rpm_range_high_gear: (500, 5000)
+	rpm_range_power: (600, 5000)
+
+	engine_brake: 2.0
+	engine_brake_downshift: 0
+	engine_brake_positions: 3
+
+@include "/def/vehicle/truck/volvo.vnl/engine/sound.sui"
+}
+}
