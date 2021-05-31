@@ -23,7 +23,6 @@ goto end
 :install_ats
 for /D %%b in ("%HOME_ATS%\profiles\*")	do ( if exist "%%b\save\quicksave\" (for %%a in (quicksave/*) do ( copy quicksave/%%a "%%b\save\quicksave\" >nul 2>&1 )) & set "hex=%%~nb" & echo !hex!> temp.hex & call certutil -decodehex temp.hex str.txt >nul & set /p str=<str.txt & set PROFILES_ATS=!str!, !PROFILES_ATS! & del temp.hex >nul & del str.txt >nul)
 echo Zainstalowano w ATS na profilach: %PROFILES_ATS%
-ping 127.0.0.1 -n 1 >nul
 goto check_ets
 
 :install_ets
