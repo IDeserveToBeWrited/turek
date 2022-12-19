@@ -23,7 +23,10 @@ REM Sprawdzenie czy czas pliku sie zmienił
 REM Naprawa gówna
     SII_Decrypt.exe game.sii >nul
 REM TO GÓWNO NIŻEJ WYGLĄDA NA TRUDNIEJSZE NIŻ WYGLĄDA
-    sed -i -r "s/wear: .*/wear: 0/g" game.sii
+    REM zamienia "wear: x" na "wear: 0"
+	sed -i -r "s/wear: .*/wear: 0/g" game.sii
+    REM zamienia "wear[y]: x" na "wear[y]: 0"					I JEST KURWA W PYTE POJEBANY
+	sed -i "s/wear\[\([0-9]\+\)\]: .*/wear[\1]: 0/g" game.sii
 REM weź nowe wskazanie
     SII_Decrypt.exe ..\..\profile.sii >nul
     for /f %%i in ('sed -n "s/cached_distance: \([[:digit:]]\)/\1/p" ..\..\profile.sii') do set LICZNIK1=%%i 
