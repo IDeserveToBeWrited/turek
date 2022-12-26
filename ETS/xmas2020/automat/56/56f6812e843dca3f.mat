@@ -1,0 +1,5 @@
+material : "eut2.unlit.tex.add.rfx" {
+	texture[0] : "/vehicle/trailer_eu/scs_flatbed/christmas_lamps.tobj"
+	texture_name[0] : "texture_base"
+	diffuse : { 1.5 , 1.5 , 1.5 }
+}

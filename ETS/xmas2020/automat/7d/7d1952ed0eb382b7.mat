@@ -1,0 +1,17 @@
+material : "eut2.dif.spec.oclu.weight.add.env.tsnmapuv.rfx" {
+	texture[0] : "/vehicle/trailer_owned/scs_box/tilable_2.tobj"
+	texture_name[0] : "texture_base"
+	texture[1] : "/vehicle/trailer_owned/upgrade/body/scs_box/decals_normal.tobj"
+	texture_name[1] : "texture_nmap"
+	texture[2] : "/vehicle/trailer_owned/scs_box/ao.tobj"
+	texture_name[2] : "texture_oclu"
+	texture[3] : "/material/environment/fuzzy_reflection/fuzzy_reflection.tobj"
+	texture_name[3] : "texture_reflection"
+	add_ambient : 0
+	diffuse : { 0.073239 , 0.073239 , 0.073239 }
+	env_factor : { 1 , 1 , 1 }
+	fresnel : { 0.2 , 0.9 }
+	reflection : 0
+	shininess : 80
+	specular : { 1 , 1 , 1 }
+}

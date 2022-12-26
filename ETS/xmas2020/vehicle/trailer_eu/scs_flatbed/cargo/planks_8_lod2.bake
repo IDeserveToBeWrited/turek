@@ -1,0 +1,28 @@
+SiiNunit 
+{
+
+baking_setup_def : _nameless.setup {
+	subject_model_path: "/vehicle/trailer_eu/scs_flatbed/cargo/planks_8_lod1.pmd"
+	cage_model_path: "/vehicle/trailer_eu/scs_flatbed/cargo/planks_8_lod2.pmd"
+	output_texture_sets[]: tex_main.main
+}
+
+baked_texture_set_def : tex_main.main {
+	output_directory: "/vehicle/trailer_eu/scs_flatbed/cargo"
+	output_size: 256
+	baked_parts[]: .vis
+	baked_parts[]: .stripes
+}
+
+
+baked_part_def : .vis {
+	subject_parts[]: vis
+	cage_part: vis
+}
+baked_part_def : .stripes {
+	subject_parts[]: stripes
+	cage_part: stripes
+}
+
+}
+    

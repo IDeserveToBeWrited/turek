@@ -1,0 +1,28 @@
+<ERROR> [fs] Failed to open file '/automat/08/08b6a78129c3a83f.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/1b/1b7983842024ceee.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/46/46daba818293a142.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/56/56f6812e843dca3f.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/68/685486d556188eab.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/70/706fea6f03dae2ee.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/7d/7d1952ed0eb382b7.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/7d/7dd490c3fe4ea23e.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/90/9041d82addc3f943.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/b2/b25a746e523dc9c1.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/b8/b8a6fc5f0dae6cba.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/ea/ea8ff8cfe6f930a6.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/def/vehicle/trailer/christmas/xmas_gifts.sii' in the read_only mode.
+
+
+
+
+<ERROR> [fs] Failed to open file '/automat/54/54b2a7ef5a5552f5.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/03/03e37ce14959d17b.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/5d/5db6919425449837.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/1e/1ef12efb22f57324.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/81/81fc856971cafe67.mat' in the read_only mode.
+<ERROR> [fs] Failed to open file '/automat/fc/fc726f0b75ecd505.mat' in the read_only mode.
+
+
+<ERROR> [fs] Failed to open file '/vehicle/trailer_owned/upgrade/body/scs_box/decals_normal.tobj' in the read_only mode.
+<ERROR> [fs] Failed to open file '/vehicle/trailer_owned/upgrade/body/scs_box/decals.tobj' in the read_only mode.
+<ERROR> [fs] Failed to open file '/vehicle/trailer_owned/upgrade/r_bumper/scs_box/lamp_mask.tobj' in the read_only mode.

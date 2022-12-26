@@ -1,0 +1,25 @@
+SiiNunit
+{
+mod_package: .package_name
+{
+		# Package version can be any string with any length.
+        package_version: "1.0 Release Candidate 1"
+
+        # Display name can be any string with any length.
+        display_name: "X-Mass 2019"
+
+        # Author can be any string with any length.
+        author: "Babed"
+
+        # Categories is an array of strings.
+        category[]: "trailer"
+
+        # Can be only .jpg file with exact size: 276x162px
+        # Icon inside the root directory of the mod.
+        icon: "mod_icon.jpg"
+
+        # Description file inside the root directory of the mod.
+        description_file: "mod_description.txt"
+
+}
+}
