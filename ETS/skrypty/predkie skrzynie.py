@@ -7,13 +7,11 @@ import re
 BASE_DIR = "."
 
 # --- Stałe do Obliczenia Prędkości (POPRAWIONE) ---
-RPM = 2100.0
-# Przyjmujemy Obwód Koła (C) dla typowych opon ciężarówki w ETS2: C = 3.19 metra
-C = 3.19 
+RPM = 2000.0  # Maksymalne obroty silnika
+# Przyjmujemy Obwód Koła (C)
+C = 3.09  # Obwód koła w metrach
 
-# Wzór na prędkość (km/h): V = (RPM * C * 60) / (Całkowite Przełożenie * 1000)
-# Całkowite Przełożenie = Diff_ratio / Ratio_max (Współczynnik Prędkości)
-# Stała_Licznik = RPM * C * 60 / 1000  (Wzór wymaga konwersji metrów na km)
+# Stała_Licznik = RPM * C * 60 / 1000
 SPEED_CONSTANT_NUMERATOR = RPM * C * 60 / 1000
 
 def get_truck_model(file_path):
@@ -34,7 +32,7 @@ def get_truck_model(file_path):
 
 def analyze_transmission_files(base_dir):
     """
-    Analizuje pliki .sii skrzyń biegów i znajduje tę z największą prędkością.
+    Analizuje pliki .sii skrzyń biegów.
     """
     results = []
 
@@ -52,15 +50,15 @@ def analyze_transmission_files(base_dir):
                     
                     current_name = None
                     diff_ratio = None
-                    max_ratio_forward = 0.0 # Najniższa wartość przełożenia
+                    max_ratio_forward = 0.0
 
                     try:
+                        # Używamy UTF-8 do odczytu dla kompatybilności
                         with open(file_path, 'r', encoding='utf-8') as f:
                             content = f.read()
 
                             name_match = name_re.search(content)
                             if name_match:
-                                # Używamy nazwy pliku i części przed '.volvo...'
                                 current_name = f"{filename} ({name_match.group(1)})"
                             else:
                                 current_name = filename
@@ -78,11 +76,7 @@ def analyze_transmission_files(base_dir):
                             theoretical_speed = None
                             
                             if diff_ratio is not None and max_ratio_forward > 0.0:
-                                # Współczynnik prędkości = Diff_ratio / Max_Ratio_Forward
-                                speed_factor = diff_ratio / max_ratio_forward
-                                
-                                # Obliczenie PRĘDKOŚCI TEORETYCZNEJ (km/h) - POPRAWIONE
-                                # V = Stała_Licznik / Współczynnik Prędkości
+                                speed_factor = diff_ratio * max_ratio_forward
                                 theoretical_speed = SPEED_CONSTANT_NUMERATOR / speed_factor
 
                                 truck_model = get_truck_model(file_path)
@@ -102,47 +96,75 @@ def analyze_transmission_files(base_dir):
 
     return results
 
+def output_results(all_results, RPM, C):
+    """
+    Generuje wyniki, zapisuje do wynik.txt (UTF-8) i wyświetla w konsoli,
+    dodając pustą kolumnę "Zmierzona V (km/h)".
+    """
+    output = []
+    
+    # 1. Nagłówki
+    output.append("--- 🚛 POPRAWIONA Analiza Skrzyń Biegów ETS2 ---")
+    output.append(f"Obroty silnika do porównania (RPM): {RPM:.0f}")
+    output.append(f"Założony obwód koła: {C} metra.")
+    output.append("Pamiętaj: Teoretyczna prędkość może się nieznacznie różnić od rzeczywistej w grze ze względu na opory powietrza, tarcie i małe różnice w modelach kół.")
+
+    if all_results:
+        # Sortowanie wyników (od najszybszej do najwolniejszej)
+        sorted_results = sorted(all_results, key=lambda x: x['speed_factor'])
+        
+        output.append("\n## 📊 Wyniki Analizy Skrzyń Biegów (od najszybszej do najwolniejszej):")
+        
+        # Nagłówki tabeli (Poszerzone)
+        # +17 znaków na nową kolumnę
+        header = "{:<50} | {:<25} | {:<10} | {:<10} | {:<15} | {:<18}"
+        separator = "-" * 135
+        
+        output.append(header.format("Nazwa Skrzyni (Plik / Model)", "Model Ciężarówki", "Dyfer", "Bieg Max", "Prędkość (km/h)", "Zmierzona V (km/h)"))
+        output.append(separator)
+        
+        # Wiersze danych
+        for r in sorted_results:
+            speed_display = r['theoretical_speed'] 
+            
+            # Dodanie pustego miejsca dla kolumny "Zmierzona V"
+            output.append(header.format(
+                r['name'], 
+                r['truck_model'], 
+                f"{r['diff_ratio']:.2f}", 
+                f"{r['max_ratio_forward']:.2f}", 
+                f"{speed_display:.2f}", 
+                "" # Pusta kolumna do ręcznego wypełnienia
+            ))
+
+        best = sorted_results[0]
+        output.append("\n--- Zwycięzca (Najniższy Współczynnik Prędkości) ---")
+        output.append(f"Największą prędkość teoretyczną (przy {RPM:.0f} RPM) osiągnie skrzynia:")
+        output.append(f"* Nazwa: {best['name']}")
+        output.append(f"* Model Ciężarówki: {best['truck_model']}")
+        output.append(f"* Obliczona Prędkość: {best['theoretical_speed']:.2f} km/h")
+        output.append(f"* Współczynnik Prędkości (Diff Ratio / Max Ratio): {best['speed_factor']:.4f}")
+        
+    else:
+        output.append("\nNie znaleziono żadnych plików transmission/*.sii do analizy w podanym katalogu bazowym.")
+        
+    final_output = "\n".join(output)
+    
+    # Wyświetlenie w konsoli
+    console_output = final_output.replace('Prędkość:', '**Prędkość:**').replace('Obliczona Prędkość:', '**Obliczona Prędkość:**')
+    print(console_output.replace('{speed_display:.2f}', '**{speed_display:.2f}**'))
+    
+    # Zapis do pliku wynik.txt z poprawnym kodowaniem UTF-8
+    try:
+        # Usuwamy pogrubienia (**) na potrzeby czystego pliku tekstowego
+        cleaned_output = final_output.replace('**', '')
+        with open('wynik.txt', 'w', encoding='utf-8') as f:
+            f.write(cleaned_output)
+        print("\n--- ZAPISANO ---")
+        print("Wyniki analizy zostały zapisane do pliku: wynik.txt (kodowanie UTF-8)")
+    except Exception as e:
+        print(f"\nBłąd podczas zapisywania do pliku wynik.txt: {e}")
+
 # Wywołanie funkcji
 all_results = analyze_transmission_files(BASE_DIR)
-
-print("--- 🚛 POPRAWIONA Analiza Skrzyń Biegów ETS2 ---")
-print(f"Obroty silnika do porównania (RPM): **{RPM:.0f}**")
-print(f"Założony obwód koła: **{C} metra**.")
-print("Pamiętaj: Teoretyczna prędkość może się nieznacznie różnić od rzeczywistej w grze ze względu na opory powietrza, tarcie i małe różnice w modelach kół.")
-
-if all_results:
-    # Sortowanie wyników (od najszybszej do najwolniejszej)
-    sorted_results = sorted(all_results, key=lambda x: x['speed_factor'])
-    
-    print("\n## 📊 Wyniki Analizy Skrzyń Biegów (od najszybszej do najwolniejszej):")
-    
-    # Nagłówki tabeli
-    header = "{:<50} | {:<25} | {:<10} | {:<10} | {:<15}"
-    separator = "-" * 115
-    
-    print(header.format("Nazwa Skrzyni (Plik / Model)", "Model Ciężarówki", "Dyfer", "Bieg Max", "Prędkość (km/h)"))
-    print(separator)
-    
-    # Wiersze danych
-    for r in sorted_results:
-        # Ograniczamy prędkość do 300 km/h, bo wyższe wartości są nierealne
-        speed_display = r['theoretical_speed'] #if r['theoretical_speed'] < 300 else 300
-        
-        print(header.format(
-            r['name'], 
-            r['truck_model'], 
-            f"{r['diff_ratio']:.2f}", 
-            f"{r['max_ratio_forward']:.2f}", 
-            f"**{speed_display:.2f}**"
-        ))
-
-    best = sorted_results[0]
-    print("\n--- Zwycięzca (Najniższy Współczynnik Prędkości) ---")
-    print(f"Największą prędkość teoretyczną (przy {RPM:.0f} RPM) osiągnie skrzynia:")
-    print(f"* **Nazwa:** {best['name']}")
-    print(f"* **Model Ciężarówki:** {best['truck_model']}")
-    print(f"* **Obliczona Prędkość:** **{best['theoretical_speed']:.2f} km/h**")
-    print(f"* **Współczynnik Prędkości (Diff Ratio / Max Ratio):** {best['speed_factor']:.4f}")
-    
-else:
-    print("\nNie znaleziono żadnych plików transmission/*.sii do analizy w podanym katalogu bazowym.")
+output_results(all_results, RPM, C)
