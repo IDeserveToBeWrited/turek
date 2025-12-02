@@ -6,7 +6,7 @@ Pamiętaj: Teoretyczna prędkość może się nieznacznie różnić od rzeczywis
 ## 📊 Wyniki Analizy Skrzyń Biegów (od najszybszej do najwolniejszej):
 Nazwa Skrzyni (Plik / Model)                       | Model Ciężarówki          | Dyfer      | Bieg Max   | Prędkość (km/h) | Zmierzona V (km/h)
 ---------------------------------------------------------------------------------------------------------------------------------------
-g25cm.sii (g25cm)                                  | scania.r_2016             | 2.59       | 0.78       | 183.55          |                   
+g25cm.sii (g25cm)                                  | scania.r_2016             | 2.59       | 0.78       | 183.55          | 185                 
 g25cm_r.sii (g25cm_r)                              | scania.r_2016             | 2.59       | 0.78       | 183.55          |                   
 g33cm.sii (g33cm)                                  | scania.r_2016             | 2.59       | 0.78       | 183.55          |                   
 g33cm_r.sii (g33cm_r)                              | scania.r_2016             | 2.59       | 0.78       | 183.55          |                   
@@ -18,11 +18,11 @@ g33cm.sii (g33cm)                                  | scania.s_2016             |
 g33cm_r.sii (g33cm_r)                              | scania.s_2016             | 2.59       | 0.78       | 183.55          |                   
 g38cm.sii (g38cm)                                  | scania.s_2016             | 2.59       | 0.78       | 183.55          |                   
 g38cm_r.sii (g38cm_r)                              | scania.s_2016             | 2.59       | 0.78       | 183.55          |                   
-ato3812g.sii (ato3812g)                            | volvo.fh_2024             | 2.64       | 0.78       | 180.07          |                   
+ato3812g.sii (ato3812g)                            | volvo.fh_2024             | 2.64       | 0.78       | 180.07          | 178                  
 ato3812g_r.sii (ato3812g_r)                        | volvo.fh_2024             | 2.64       | 0.78       | 180.07          |                   
-zf_12tx2860td.sii (zf12tx2860td)                   | iveco.sway                | 2.17       | 1.00       | 170.88          |                   
+zf_12tx2860td.sii (zf12tx2860td)                   | iveco.sway                | 2.17       | 1.00       | 170.88          | 171                  
 zf_12tx2861td.sii (zf12tx2861td)                   | iveco.sway                | 2.17       | 1.00       | 170.88          |                   
-zf_12tx2420td.sii (zf12tx2420td)                   | iveco.sway                | 2.31       | 1.00       | 160.52          |                   
+zf_12tx2420td.sii (zf12tx2420td)                   | iveco.sway                | 2.31       | 1.00       | 160.52          | 162                  
 zf_12tx2421td.sii (zf12tx2421td)                   | iveco.sway                | 2.31       | 1.00       | 160.52          |                   
 at2812g.sii (at2812g)                              | volvo.fh_2024             | 2.31       | 1.00       | 160.52          |                   
 at2812g_r.sii (at2812g_r)                          | volvo.fh_2024             | 2.31       | 1.00       | 160.52          |                   
@@ -188,7 +188,7 @@ zf_16as2631to.sii (zf16as2631to)                   | man.tgx_euro6             |
 zf_16as2630to.sii (zf16as2630to)                   | renault.magnum            | 3.40       | 0.83       | 131.40          |                   
 zf_16as2631to.sii (zf16as2631to)                   | renault.magnum            | 3.40       | 0.83       | 131.40          |                   
 zf_16as2630to.sii (zf16as2630to)                   | renault.premium           | 3.40       | 0.83       | 131.40          |                   
-zf_16as2631to.sii (zf16as2631to)                   | renault.premium           | 3.40       | 0.83       | 131.40          |                   
+zf_16as2631to.sii (zf16as2631to)                   | renault.premium           | 3.40       | 0.83       | 131.40          | 133                  
 grso925.sii (grso925)                              | scania.r                  | 3.96       | 0.80       | 117.05          |                   
 grso925_r.sii (grso925_r)                          | scania.r                  | 3.96       | 0.80       | 117.05          |                   
 grso925.sii (grso925)                              | scania.r_2016             | 3.96       | 0.80       | 117.05          |                   
@@ -200,10 +200,10 @@ grso925_r.sii (grso925_r)                          | scania.s_2016             |
 g280_16.sii (g280_16)                              | mercedes.actros           | 4.83       | 0.69       | 111.68          |                   
 g280_16_r.sii (g280_16_r)                          | mercedes.actros           | 4.83       | 0.69       | 111.68          |                   
 g280_16.sii (g280_16)                              | mercedes.actros2014       | 4.83       | 0.69       | 111.68          |                   
-g280_16_r.sii (g280_16_r)                          | mercedes.actros2014       | 4.83       | 0.69       | 111.68          |                   
+g280_16_r.sii (g280_16_r)                          | mercedes.actros2014       | 4.83       | 0.69       | 111.68          | 113                  
 transmission.sii (trailer)                         | N/A (Sprawdź ścieżkę!)    | 4.00       | 1.52       | 60.79           |                   
 transmission.sii (trailer)                         | N/A (Sprawdź ścieżkę!)    | 4.00       | 1.52       | 60.79           |                   
-hd2.sii (hd2)                                      | daf.xf_electric           | 2.38       | 3.25       | 47.94           |                   
+hd2.sii (hd2)                                      | daf.xf_electric           | 2.38       | 3.25       | 47.94           | 50                  
 
 --- Zwycięzca (Najniższy Współczynnik Prędkości) ---
 Największą prędkość teoretyczną (przy 2000 RPM) osiągnie skrzynia:
