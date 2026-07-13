@@ -24,6 +24,8 @@
   --danger: #e6564c;
   --danger-dim: #8f3530;
   --good: #5fbf7a;
+  --sub-color: #6fb8dd;
+  --sub-color-dim: #4d7f9c;
   --mono: 'JetBrains Mono', monospace;
   --display: 'Oswald', sans-serif;
   --body: 'Inter', sans-serif;
@@ -45,7 +47,7 @@ body{
 /* ---------- top bar ---------- */
 .topbar{
   position: sticky; top:0; z-index: 20;
-  display:flex; align-items:center; gap:16px;
+  display:flex; align-items:center; gap:12px; row-gap:10px; flex-wrap:wrap;
   padding: 14px 28px;
   background: rgba(18,22,26,0.92);
   backdrop-filter: blur(8px);
@@ -237,11 +239,36 @@ body{
 .item-input:hover{ border-color: var(--border-light); }
 .item-input:focus{ border-color: var(--accent); background: var(--panel); }
 .item-input.is-loc{ color: #d9b98a; font-family: var(--mono); font-size:12.5px; }
+.item-input.is-sub{
+  color: var(--text); background: rgba(95,159,191,0.08);
+  border-color: rgba(95,159,191,0.35);
+}
+.item-input.is-sub:focus{ border-color: var(--sub-color); background: var(--panel); }
 .item-icon{
   position:absolute; left:9px; top:50%; transform:translateY(-50%);
   width:14px; height:14px; color: var(--text-faint); pointer-events:none;
 }
 .item-icon.loc{ color: var(--accent-dim); }
+.item-icon.sub{ color: var(--sub-color); }
+
+.sub-wrap{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.sub-badge{
+  display:flex; align-items:center; gap:5px;
+  font-family: var(--mono); font-size:10px; color: var(--sub-color);
+  padding: 0 2px;
+}
+.sub-badge svg{ width:11px; height:11px; flex-shrink:0; }
+.sub-badge .key{ color: var(--sub-color-dim); }
+.cat-title-wrap{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.cat-title-wrap .sub-badge{ padding-left:9px; }
+.revert-btn{
+  display:inline-flex; align-items:center; gap:4px;
+  background:none; border:none; color: var(--text-faint); cursor:pointer;
+  font-family:var(--mono); font-size:10px; padding:0 4px; text-decoration:underline;
+  text-underline-offset:2px;
+}
+.revert-btn:hover{ color: var(--sub-color); }
+.revert-btn svg{ width:10px; height:10px; }
 
 .add-item-btn{
   display:flex; align-items:center; gap:7px;
@@ -275,6 +302,25 @@ body{
 .legend span{ display:inline-flex; align-items:center; gap:6px; }
 .legend svg{ width:12px; height:12px; }
 
+
+.lang-select-wrap{
+  display:flex; align-items:center; gap:6px;
+  background: var(--panel-alt); border:1px solid var(--border-light);
+  border-radius:8px; padding:0 6px 0 10px;
+}
+.lang-select-wrap svg{ width:14px; height:14px; color:var(--text-faint); flex-shrink:0; }
+.lang-select{
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background: transparent
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b98a3' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>")
+    no-repeat right center / 13px;
+  border:none; outline:none;
+  color: var(--text); font-family: var(--body); font-size:12.5px; font-weight:600;
+  padding:8px 20px 8px 2px; cursor:pointer;
+  max-width:170px; text-overflow:ellipsis;
+}
+.lang-select option{ background: var(--panel); color: var(--text); }
+
 @media (max-width: 640px){
   .topbar{ padding:12px 14px; flex-wrap:wrap; }
   .searchbox{ order:3; width:100%; min-width:0; }
@@ -298,13 +344,29 @@ body{
   <div class="topbar-spacer"></div>
   <div class="searchbox" id="searchBox">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input id="searchInput" type="text" placeholder="Szukaj odpowiedzi…">
+    <input id="searchInput" type="text" data-i18n-placeholder="searchPlaceholder" placeholder="Search replies…">
   </div>
   <div class="file-chip" id="fileChip"><span class="dot"></span><span id="fileName"></span></div>
-  <button class="btn" id="loadNewBtn" hidden>Wczytaj inny plik</button>
+
+  <div class="lang-select-wrap" data-i18n-title="qrLangLabel" title="Quick reply language">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l3-3 3 3M7 4v13M20 17l-3 3-3-3M17 20V7"/></svg>
+    <select class="lang-select" id="qrLangSelect"></select>
+  </div>
+
+  <div class="lang-select-wrap" data-i18n-title="uiLangLabel" title="Interface language">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg>
+    <select class="lang-select" id="uiLangSelect">
+      <option value="pl">Polski</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+
+  <button class="btn" id="loadLocBtn" data-i18n="loadLocBtn" data-i18n-title="loadLocBtnTitle" title="Load a localization.sui file to extend the dictionary for the selected language">Load localization</button>
+  <input type="file" id="locInput" accept=".sui,.txt" style="display:none">
+  <button class="btn" id="loadNewBtn" data-i18n="loadNewBtn" hidden>Load another file</button>
   <button class="btn btn-accent" id="exportBtn" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
-    Eksportuj .sii
+    <span data-i18n="exportBtn">Export .sii</span>
   </button>
 </div>
 
@@ -313,30 +375,2694 @@ body{
     <div class="icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5"/><path d="M4 17.5V19a2 2 0 002 2h12a2 2 0 002-2v-1.5"/></svg>
     </div>
-    <h2>Przeciągnij plik quick_reply.sii</h2>
-    <p>Wszystkie grupy i odpowiedzi zostaną wczytane i pogrupowane —<br>możesz je dowolnie edytować, dodawać i usuwać.</p>
-    <button class="btn btn-accent" type="button" id="browseBtn">Wybierz plik</button>
+    <h2 data-i18n="dropTitle">Drag &amp; drop your quick_reply.sii file</h2>
+    <p data-i18n="dropText">All groups and replies will be loaded and grouped —<br>you can freely edit, add, and remove them.</p>
+    <button class="btn btn-accent" type="button" id="browseBtn" data-i18n="browseBtn">Choose file</button>
     <input type="file" id="fileInput" accept=".sii,.txt">
-    <div class="hint">obsługiwany plik: quick_reply.sii z /def/quick_reply/</div>
+    <div class="hint" data-i18n="dropHint">supported file: quick_reply.sii from /def/quick_reply/</div>
   </div>
 </div>
 
 <div class="workspace" id="workspace">
   <div class="legend">
-    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg> tekst zwykły — widoczny wprost w grze</span>
-    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l3-3 3 3M7 4v13M20 17l-3 3-3-3M17 20V7"/></svg> <span style="color:#d9b98a">@@klucz@@</span> — odwołanie do tłumaczenia (string table)</span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg> <span data-i18n="legendPlain">plain text — value stored directly in the file</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l3-3 3 3M7 4v13M20 17l-3 3-3-3M17 20V7"/></svg> <span data-i18n="legendSub" style="color:var(--sub-color)">substituted from translation — the field shows text in the selected language, but the file still only has the key @@…@@; editing the field overwrites the key with your text</span></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg> <span data-i18n="legendUnresolved" style="color:#d9b98a">unknown key — @@…@@ with no match in the dictionary (load a localization file)</span></span>
   </div>
+  <p data-i18n="legendNote" style="color:var(--text-faint); font-size:12px; margin:-10px 0 18px;">The built-in dictionary includes translations for 42 ETS2/ATS languages. If you load a file with new keys that aren't in the dictionary — load a <b>localization.sui</b> file with the toolbar button.</p>
   <div class="stats-row" id="statsRow"></div>
   <div id="categoriesRoot"></div>
   <button class="add-cat-btn" id="addCatBtn">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-    Dodaj kategorię
+    <span data-i18n="addCategoryBtn">Add category</span>
   </button>
 </div>
 
 <script>
 (function(){
   "use strict";
+
+  /* ---------------- UI language (interface text) ---------------- */
+  const UI_STRINGS = {
+    pl: {
+      searchPlaceholder: "Szukaj odpowiedzi…",
+      loadLocBtn: "Doładuj lokalizację",
+      loadLocBtnTitle: "Doładuj plik localization.sui, aby rozszerzyć słownik tłumaczeń dla wybranego języka",
+      loadNewBtn: "Wczytaj inny plik",
+      exportBtn: "Eksportuj .sii",
+      qrLangLabel: "Język quick repliek",
+      uiLangLabel: "Język strony",
+      dropTitle: "Przeciągnij plik quick_reply.sii",
+      dropText: "Wszystkie grupy i odpowiedzi zostaną wczytane i pogrupowane —<br>możesz je dowolnie edytować, dodawać i usuwać.",
+      browseBtn: "Wybierz plik",
+      dropHint: "obsługiwany plik: quick_reply.sii z /def/quick_reply/",
+      legendPlain: "tekst zwykły — wartość zapisana wprost w pliku",
+      legendSub: "podstawione z tłumaczenia — pole pokazuje tekst w wybranym języku, ale w pliku wciąż jest sam klucz @@…@@; edycja pola nadpisze klucz Twoim tekstem",
+      legendUnresolved: "nieznany klucz — @@…@@ bez odpowiednika w słowniku (doładuj plik lokalizacji)",
+      legendNote: "Wbudowany słownik zawiera tłumaczenia dla 43 języków ETS2/ATS. Jeśli wgrasz plik z nowymi kluczami, których nie ma w słowniku — doładuj <b>localization.sui</b> przyciskiem w pasku narzędzi.",
+      statReplies: "odpowiedzi",
+      statCategories: "kategorii",
+      statSubstituted: "podstawionych z tłumaczenia",
+      addReplyBtn: "Dodaj odpowiedź",
+      addCategoryBtn: "Dodaj kategorię",
+      emptyCategories: "Brak kategorii. Dodaj pierwszą poniżej.",
+      emptyReplies: "Brak odpowiedzi w tej kategorii.",
+      itemsSuffix: "szt.",
+      badgeSubPrefix: "podstawione z tłumaczenia",
+      badgeSubTooltip: "Pole pokazuje tekst podstawiony z pliku lokalizacji dla klucza @@{key}@@. To NIE jest wartość bezpośrednio zapisana w quick_reply.sii — tam wciąż jest sam klucz. Jeśli zaczniesz edytować to pole, klucz zostanie zastąpiony wpisanym przez Ciebie tekstem.",
+      badgeUnresolvedText: "nieznany klucz — brak w słowniku",
+      badgeUnresolvedTooltip: "To jest klucz lokalizacji (@@{key}@@), ale nie znaleziono go w słowniku. Wczytaj plik localization.sui przyciskiem w pasku narzędzi, albo edytuj wartość ręcznie.",
+      revertBtn: "przywróć klucz @@{key}@@",
+      titleToggle: "Zwiń / rozwiń",
+      titleUp: "W górę",
+      titleDown: "W dół",
+      titleDelete: "Usuń",
+      newReplyText: "Nowa odpowiedź",
+      newCategoryText: "Nowa kategoria",
+      confirmDeleteCategory: 'Usunąć tę kategorię? "{text}"',
+      confirmDeleteReply: 'Usunąć tę odpowiedź? "{text}"',
+      confirmLoadNew: "Wczytanie nowego pliku odrzuci niezapisane zmiany. Kontynuować?",
+      alertParseFail: "Nie udało się rozpoznać struktury pliku. Upewnij się, że to plik quick_reply.sii w formacie SiiNunit.",
+      alertReadFail: "Nie udało się odczytać pliku.",
+      alertLocLoaded: "Wczytano plik lokalizacji: {n} wpisów (nowych: {added}). Słownik podstawień dla bieżącego języka został rozszerzony.",
+      alertLocReadFail: "Nie udało się odczytać pliku lokalizacji."
+    },
+    en: {
+      searchPlaceholder: "Search replies…",
+      loadLocBtn: "Load localization",
+      loadLocBtnTitle: "Load a localization.sui file to extend the translation dictionary for the selected language",
+      loadNewBtn: "Load another file",
+      exportBtn: "Export .sii",
+      qrLangLabel: "Quick reply language",
+      uiLangLabel: "Interface language",
+      dropTitle: "Drag & drop your quick_reply.sii file",
+      dropText: "All groups and replies will be loaded and grouped —<br>you can freely edit, add, and remove them.",
+      browseBtn: "Choose file",
+      dropHint: "supported file: quick_reply.sii from /def/quick_reply/",
+      legendPlain: "plain text — value stored directly in the file",
+      legendSub: "substituted from translation — the field shows text in the selected language, but the file still only has the key @@…@@; editing the field overwrites the key with your text",
+      legendUnresolved: "unknown key — @@…@@ with no match in the dictionary (load a localization file)",
+      legendNote: "The built-in dictionary includes translations for 43 ETS2/ATS languages. If you load a file with new keys that aren't in the dictionary — load a <b>localization.sui</b> file with the toolbar button.",
+      statReplies: "replies",
+      statCategories: "categories",
+      statSubstituted: "substituted from translation",
+      addReplyBtn: "Add reply",
+      addCategoryBtn: "Add category",
+      emptyCategories: "No categories yet. Add the first one below.",
+      emptyReplies: "No replies in this category.",
+      itemsSuffix: "items",
+      badgeSubPrefix: "substituted from translation",
+      badgeSubTooltip: "This field shows text substituted from the localization file for key @@{key}@@. This is NOT the value directly stored in quick_reply.sii — the raw key is still there. If you start editing this field, the key will be replaced by the text you type.",
+      badgeUnresolvedText: "unknown key — not in dictionary",
+      badgeUnresolvedTooltip: "This is a localization key (@@{key}@@), but it wasn't found in the dictionary. Load a localization.sui file with the toolbar button, or edit the value manually.",
+      revertBtn: "restore key @@{key}@@",
+      titleToggle: "Collapse / expand",
+      titleUp: "Move up",
+      titleDown: "Move down",
+      titleDelete: "Delete",
+      newReplyText: "New reply",
+      newCategoryText: "New category",
+      confirmDeleteCategory: 'Delete this category? "{text}"',
+      confirmDeleteReply: 'Delete this reply? "{text}"',
+      confirmLoadNew: "Loading a new file will discard unsaved changes. Continue?",
+      alertParseFail: "Couldn't recognize the file structure. Make sure it's a quick_reply.sii file in SiiNunit format.",
+      alertReadFail: "Couldn't read the file.",
+      alertLocLoaded: "Loaded localization file: {n} entries (new: {added}). The substitution dictionary for the current language has been extended.",
+      alertLocReadFail: "Couldn't read the localization file."
+    }
+  };
+
+  function detectBrowserUILang(){
+    const nav = ((navigator.language || navigator.userLanguage || 'en') + '').toLowerCase();
+    return nav.startsWith('pl') ? 'pl' : 'en';
+  }
+
+  let uiLang = detectBrowserUILang();
+
+  function t(key, vars){
+    let s = (UI_STRINGS[uiLang] && UI_STRINGS[uiLang][key] != null) ? UI_STRINGS[uiLang][key] : (UI_STRINGS.en[key] || key);
+    if (vars) {
+      Object.keys(vars).forEach(k => { s = s.split('{' + k + '}').join(vars[k]); });
+    }
+    return s;
+  }
+
+  function applyUILang(){
+    document.documentElement.lang = uiLang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.getAttribute('data-i18n')); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-i18n-placeholder')); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.getAttribute('data-i18n-title')); });
+  }
+
+  /* ---------------- localization dictionary (quick reply language) ---------------- */
+  // Native display names for the built-in locales.
+  const LOCALE_NAMES = {
+    bg_bg: "Български", ca_es: "Català", cs_cz: "Čeština", da_dk: "Dansk",
+    de_de: "Deutsch", el_gr: "Ελληνικά", en_gb: "English (UK)", en_us: "English (US)",
+    es_es: "Español (España)", es_la: "Español (Latinoamérica)", et_ee: "Eesti",
+    eu_es: "Euskara", fi_fi: "Suomi", fr_ca: "Français (Canada)", fr_fr: "Français",
+    gl_es: "Galego", hr_hr: "Hrvatski", hu_hu: "Magyar", it_it: "Italiano",
+    ja_jp: "日本語", ka_ge: "ქართული", ko_kr: "한국어", lt_lt: "Lietuvių",
+    lv_lv: "Latviešu", mk_mk: "Македонски", nl_nl: "Nederlands", no_no: "Norsk",
+    pl_pl: "Polski", pl_si: "Po prleško", pt_br: "Português (Brasil)",
+    pt_pt: "Português (Portugal)", ro_ro: "Română", ru_ru: "Русский", sk_sk: "Slovenčina",
+    sl_sl: "Slovenščina", sr_sp: "Srpski (latinica)", sr_sr: "Српски (ћирилица)",
+    sv_se: "Svenska", tr_tr: "Türkçe", uk_uk: "Українська", vi_vn: "Tiếng Việt",
+    zh_cn: "中文 (简体)", zh_tw: "中文 (繁體)"
+  };
+
+  // Wbudowany słownik tłumaczeń quick-reply dla 42 języków ETS2/ATS,
+  // wyciągnięty z plików localization_<kod>.sui skryptem extract_quick_reply_translations.py.
+  const LOC_DICTS = {
+  "bg_bg": {
+    "mp_directions_replies": "Направления",
+    "mp_convoy_replies": "Конвой",
+    "mp_social_replies": "Социални",
+    "mp_service_replies": "Сервизни",
+    "mp_reactions_replies": "Реакции",
+    "mp_compliments_replies": "Комплименти",
+    "mp_greetings_replies": "Приветствия и сбогувания",
+    "qr_dire_001": "Наляво.",
+    "qr_dire_002": "Надясно.",
+    "qr_dire_003": "Направо.",
+    "qr_dire_004": "Обратен завой.",
+    "qr_dire_005": "Погрешен път!",
+    "qr_dire_006": "Намали скоростта.",
+    "qr_dire_007": "Спри.",
+    "qr_conv_001": "Нека аз водя!",
+    "qr_conv_002": "Следвам ви!",
+    "qr_conv_003": "Следвайте ме.",
+    "qr_conv_004": "Да спрем за почивка.",
+    "qr_conv_005": "Изчакайте ме!",
+    "qr_conv_006": "Погледни назад!",
+    "qr_conv_007": "Аз ще намеря оферта!",
+    "qr_soci_001": "Да тръгваме!",
+    "qr_soci_002": "Готови?",
+    "qr_soci_003": "Готов!",
+    "qr_soci_004": "Още една доставка?",
+    "qr_soci_005": "Обща снимка?",
+    "qr_soci_006": "Аварийна ситуация!",
+    "qr_soci_007": "Връщам се веднага.",
+    "qr_serv_001": "Отивам до сервиза!",
+    "qr_serv_002": "Трябва да отида до сервиза.",
+    "qr_serv_003": "Отивам да се пообновя.",
+    "qr_serv_004": "Горивото ми свърши.",
+    "qr_serv_005": "Катастрофирах!",
+    "qr_serv_006": "Да спрем за гориво.",
+    "qr_serv_007": "Да спрем в сервиза.",
+    "qr_reac_001": "Да!",
+    "qr_reac_002": "Не.",
+    "qr_reac_003": "Добре.",
+    "qr_reac_004": "Няма нищо.",
+    "qr_reac_005": "Разбира се.",
+    "qr_reac_006": "Съжалявам!",
+    "qr_reac_007": "Опа!",
+    "qr_comp_001": "Благодаря!",
+    "qr_comp_002": "Добра работа!",
+    "qr_comp_003": "Добро шофиране!",
+    "qr_comp_004": "Хубав камион!",
+    "qr_comp_005": "Хубаво ремарке!",
+    "qr_comp_006": "Хубава окраска!",
+    "qr_comp_007": "Страхотни добавки!",
+    "qr_gree_001": "Привет!",
+    "qr_gree_002": "Добре дошъл.",
+    "qr_gree_003": "Радвам се да те видя!",
+    "qr_gree_004": "Приятен път!",
+    "qr_gree_005": "Доскоро!",
+    "qr_gree_006": "Трябва да тръгвам.",
+    "qr_gree_007": "Достатъчно за днес."
+  },
+  "ca_es": {
+    "mp_directions_replies": "Indicacions",
+    "mp_convoy_replies": "Comboi",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Taller",
+    "mp_reactions_replies": "Reaccions",
+    "mp_compliments_replies": "Elogis",
+    "mp_greetings_replies": "Salutacions i comiats",
+    "qr_dire_001": "A l'esquerra.",
+    "qr_dire_002": "A la dreta.",
+    "qr_dire_003": "Segueix recte.",
+    "qr_dire_004": "Fem mitja volta.",
+    "qr_dire_005": "Camí equivocat!",
+    "qr_dire_006": "A poc a poc.",
+    "qr_dire_007": "Para't.",
+    "qr_conv_001": "Deixa'm anar primer!",
+    "qr_conv_002": "T'estic seguint!",
+    "qr_conv_003": "Segueix-me.",
+    "qr_conv_004": "Fem una pausa.",
+    "qr_conv_005": "Espereu-me si us plau!",
+    "qr_conv_006": "Mira enrere!",
+    "qr_conv_007": "Ja tinc feina!",
+    "qr_soci_001": "Fem-ho!",
+    "qr_soci_002": "A punt?",
+    "qr_soci_003": "A punt!",
+    "qr_soci_004": "Una entrega més?",
+    "qr_soci_005": "Foto de grup?",
+    "qr_soci_006": "Parada d'emergència!",
+    "qr_soci_007": "Torno de seguida.",
+    "qr_serv_001": "Vaig al taller!",
+    "qr_serv_002": "Necessito una reparació.",
+    "qr_serv_003": "Vaig a fer una millora.",
+    "qr_serv_004": "M'he quedat sense combustible.",
+    "qr_serv_005": "He xocat!",
+    "qr_serv_006": "Parem a la benzinera.",
+    "qr_serv_007": "Parem al taller.",
+    "qr_reac_001": "Sí!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "D'acord.",
+    "qr_reac_004": "Cap problema.",
+    "qr_reac_005": "Segur.",
+    "qr_reac_006": "Ho sento!",
+    "qr_reac_007": "Ui!",
+    "qr_comp_001": "Gràcies!",
+    "qr_comp_002": "Bona feina!",
+    "qr_comp_003": "Bona conducció!",
+    "qr_comp_004": "Un camió ben maco!",
+    "qr_comp_005": "Un remolc ben maco!",
+    "qr_comp_006": "Una pintura ben maca!",
+    "qr_comp_007": "Uns accessoris genials!",
+    "qr_gree_001": "Hola!",
+    "qr_gree_002": "Benvingut/da.",
+    "qr_gree_003": "M'alegro de veure't!",
+    "qr_gree_004": "Bon viatge!",
+    "qr_gree_005": "Ja ens veurem!",
+    "qr_gree_006": "He de marxar.",
+    "qr_gree_007": "Per avui en tinc prou."
+  },
+  "cs_cz": {
+    "mp_directions_replies": "Instrukce",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Společenské",
+    "mp_service_replies": "Služby",
+    "mp_reactions_replies": "Reakce",
+    "mp_compliments_replies": "Komplimenty",
+    "mp_greetings_replies": "Pozdravy",
+    "qr_dire_001": "Doleva.",
+    "qr_dire_002": "Doprava.",
+    "qr_dire_003": "Rovně.",
+    "qr_dire_004": "Otočte se.",
+    "qr_dire_005": "Špatný směr!",
+    "qr_dire_006": "Zpomalte.",
+    "qr_dire_007": "Zastavte.",
+    "qr_conv_001": "Nechte mě jet první!",
+    "qr_conv_002": "Jsem za váma!",
+    "qr_conv_003": "Jeďte za mnou.",
+    "qr_conv_004": "Dejme si přestávku.",
+    "qr_conv_005": "Počkejte na mě prosím!",
+    "qr_conv_006": "Podívejte se za sebe!",
+    "qr_conv_007": "Já najdu zakázku!",
+    "qr_soci_001": "Jdeme na to!",
+    "qr_soci_002": "Připraveni?",
+    "qr_soci_003": "Připraveni!",
+    "qr_soci_004": "Ještě jednu zakázku?",
+    "qr_soci_005": "Společná fotka?",
+    "qr_soci_006": "Nouzové zastavení!",
+    "qr_soci_007": "Budu hned zpátky.",
+    "qr_serv_001": "Jedu do servisu!",
+    "qr_serv_002": "Potřebuji opravit.",
+    "qr_serv_003": "Jdu si vylepšit výbavu.",
+    "qr_serv_004": "Došlo mi palivo.",
+    "qr_serv_005": "Naboural jsem!",
+    "qr_serv_006": "Zastavme pro palivo.",
+    "qr_serv_007": "Zastavme u servisu.",
+    "qr_reac_001": "Ano!",
+    "qr_reac_002": "Ne.",
+    "qr_reac_003": "Ok.",
+    "qr_reac_004": "Žádný problém.",
+    "qr_reac_005": "Samozřejmě.",
+    "qr_reac_006": "Omlouvám se!",
+    "qr_reac_007": "Sakra!",
+    "qr_comp_001": "Díky!",
+    "qr_comp_002": "Dobrá práce!",
+    "qr_comp_003": "Dobrá jízda!",
+    "qr_comp_004": "Pěkný tahač!",
+    "qr_comp_005": "Pěkný návěs!",
+    "qr_comp_006": "Pěkný nátěr!",
+    "qr_comp_007": "Pěkné doplňky!",
+    "qr_gree_001": "Ahoj!",
+    "qr_gree_002": "Vítejte.",
+    "qr_gree_003": "Rád vás vidím!",
+    "qr_gree_004": "Šťastnou cestu!",
+    "qr_gree_005": "Mějte se!",
+    "qr_gree_006": "Už musím jít.",
+    "qr_gree_007": "Pro dnešek končím."
+  },
+  "da_dk": {
+    "mp_directions_replies": "Anvisninger",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reaktioner",
+    "mp_compliments_replies": "Komplimenter",
+    "mp_greetings_replies": "Hilsner & Afskeder",
+    "qr_dire_001": "Venstre.",
+    "qr_dire_002": "Højre.",
+    "qr_dire_003": "Ligeud.",
+    "qr_dire_004": "Vend om.",
+    "qr_dire_005": "Forkert vej!",
+    "qr_dire_006": "Sæt farten ned.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Lad mig køre først!",
+    "qr_conv_002": "Jeg følger efter!",
+    "qr_conv_003": "Følg mig.",
+    "qr_conv_004": "Lad os holde en pause.",
+    "qr_conv_005": "Vent på mig!",
+    "qr_conv_006": "Se bag dig!",
+    "qr_conv_007": "Jeg finder jobbet!",
+    "qr_soci_001": "Lad os komme i gang!",
+    "qr_soci_002": "Klar?",
+    "qr_soci_003": "Klar!",
+    "qr_soci_004": "En levering mere?",
+    "qr_soci_005": "Gruppebillede?",
+    "qr_soci_006": "Nødstop!",
+    "qr_soci_007": "Er straks tilbage.",
+    "qr_serv_001": "Kører til service!",
+    "qr_serv_002": "Har brug for reparationer.",
+    "qr_serv_003": "Jeg opgraderer.",
+    "qr_serv_004": "Løbet tør for brændstof.",
+    "qr_serv_005": "Kørt galt!",
+    "qr_serv_006": "Lad os tanke op.",
+    "qr_serv_007": "Lad os standse ved servicestedet.",
+    "qr_reac_001": "Ja!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "Ikke noget problem.",
+    "qr_reac_005": "Klart.",
+    "qr_reac_006": "Undskyld!",
+    "qr_reac_007": "Hovsa!",
+    "qr_comp_001": "Tak!",
+    "qr_comp_002": "Godt gjort!",
+    "qr_comp_003": "Flot kørsel!",
+    "qr_comp_004": "Fed lastbil!",
+    "qr_comp_005": "Fed trailer!",
+    "qr_comp_006": "Fed farvelægning!",
+    "qr_comp_007": "Sejt tilbehør!",
+    "qr_gree_001": "Hej!",
+    "qr_gree_002": "Velkommen.",
+    "qr_gree_003": "Godt at se dig!",
+    "qr_gree_004": "God rejse!",
+    "qr_gree_005": "Vi ses!",
+    "qr_gree_006": "Jeg er nødt til at gå nu.",
+    "qr_gree_007": "Jeg er færdig for i dag."
+  },
+  "de_de": {
+    "mp_directions_replies": "Wegbeschreibung",
+    "mp_convoy_replies": "Konvoi",
+    "mp_social_replies": "Sozial",
+    "mp_service_replies": "Wartung",
+    "mp_reactions_replies": "Reaktionen",
+    "mp_compliments_replies": "Komplimente",
+    "mp_greetings_replies": "Begrüßung & Verabschiedung",
+    "qr_dire_001": "Links.",
+    "qr_dire_002": "Rechts.",
+    "qr_dire_003": "Geradeaus.",
+    "qr_dire_004": "Drehe um.",
+    "qr_dire_005": "Falsche Richtung!",
+    "qr_dire_006": "Mach langsam.",
+    "qr_dire_007": "Stopp.",
+    "qr_conv_001": "Lass mich vorne fahren!",
+    "qr_conv_002": "Ich fahre hinterher!",
+    "qr_conv_003": "Folge mir.",
+    "qr_conv_004": "Lass uns eine Pause machen.",
+    "qr_conv_005": "Warte bitte auf mich!",
+    "qr_conv_006": "Schau nach hinten!",
+    "qr_conv_007": "Ich werde den Auftrag finden!",
+    "qr_soci_001": "Los geht's!",
+    "qr_soci_002": "Bereit?",
+    "qr_soci_003": "Bereit!",
+    "qr_soci_004": "Noch eine Lieferung?",
+    "qr_soci_005": "Gruppenfoto?",
+    "qr_soci_006": "Not-Halt!",
+    "qr_soci_007": "Bin gleich zurück.",
+    "qr_serv_001": "Gehe zur Wartung!",
+    "qr_serv_002": "Brauche Reparatur.",
+    "qr_serv_003": "Ich werde upgraden.",
+    "qr_serv_004": "Tank ist leer.",
+    "qr_serv_005": "Unfall gebaut!",
+    "qr_serv_006": "Lass uns zum Tanken anhalten.",
+    "qr_serv_007": "Lass uns zur Wartung halten.",
+    "qr_reac_001": "Ja!",
+    "qr_reac_002": "Nein.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "Kein Problem.",
+    "qr_reac_005": "Klar.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Danke!",
+    "qr_comp_002": "Gut gemacht!",
+    "qr_comp_003": "Gut gefahren!",
+    "qr_comp_004": "Netter Lkw!",
+    "qr_comp_005": "Netter Auflieger!",
+    "qr_comp_006": "Nette Lackierung!",
+    "qr_comp_007": "Cooles Zubehör!",
+    "qr_gree_001": "Hi!",
+    "qr_gree_002": "Willkommen.",
+    "qr_gree_003": "Schön, dich zu sehen!",
+    "qr_gree_004": "Gute Fahrt!",
+    "qr_gree_005": "Wir sehen uns!",
+    "qr_gree_006": "Ich werde jetzt gehen.",
+    "qr_gree_007": "Mir reicht's für heute."
+  },
+  "el_gr": {
+    "mp_directions_replies": "Οδηγίες",
+    "mp_convoy_replies": "Κονβόι",
+    "mp_social_replies": "Κοινωνικά",
+    "mp_service_replies": "Συνεργείο/Πρατήριο Καυσίμων",
+    "mp_reactions_replies": "Αντιδράσεις",
+    "mp_compliments_replies": "Κοπλιμέντα",
+    "mp_greetings_replies": "Χαιρετισμοί & Αντίο",
+    "qr_dire_001": "Αριστερά.",
+    "qr_dire_002": "Δεξιά.",
+    "qr_dire_003": "Ευθεία.",
+    "qr_dire_004": "Κάνε αναστροφή.",
+    "qr_dire_005": "Λάθος δρόμος!",
+    "qr_dire_006": "Επιβράδυνε.",
+    "qr_dire_007": "Σταμάτα.",
+    "qr_conv_001": "Άσε με να περάσω μπροστά!",
+    "qr_conv_002": "Εγώ ακολουθώ!",
+    "qr_conv_003": "Ακολούθησε με.",
+    "qr_conv_004": "Ας κάνουμε ένα διάλειμμα.",
+    "qr_conv_005": "Περίμενε με παρακαλώ!",
+    "qr_conv_006": "Έλεγξε πίσω!",
+    "qr_conv_007": "Θα βρω τη δουλειά!",
+    "qr_soci_001": "Ας το κάνουμε!",
+    "qr_soci_002": "Έτοιμος;",
+    "qr_soci_003": "Έτοιμος!",
+    "qr_soci_004": "Ακόμα μία παράδοση;",
+    "qr_soci_005": "Ομαδική φωτογραφία;",
+    "qr_soci_006": "Έκτακτη στάση!",
+    "qr_soci_007": "Επιστρέφω αμέσως.",
+    "qr_serv_001": "Πηγαίνω στο συνεργείο!",
+    "qr_serv_002": "Χρειάζονται επισκευές.",
+    "qr_serv_003": "Πηγαίνω για αναβαθμίσεις.",
+    "qr_serv_004": "Μου τελείωσαν τα καύσιμα.",
+    "qr_serv_005": "Τράκαρα!",
+    "qr_serv_006": "Ας σταματήσουμε για καύσιμα.",
+    "qr_serv_007": "Ας σταματήσουμε στο συνεργείο.",
+    "qr_reac_001": "Ναι!",
+    "qr_reac_002": "Όχι.",
+    "qr_reac_003": "Εντάξει.",
+    "qr_reac_004": "Κανένα πρόβλημα.",
+    "qr_reac_005": "Σίγουρα.",
+    "qr_reac_006": "Συγνώμη!",
+    "qr_reac_007": "Ουπς!",
+    "qr_comp_001": "Ευχαριστώ!",
+    "qr_comp_002": "Καλή δουλειά!",
+    "qr_comp_003": "Καλή οδήγηση!",
+    "qr_comp_004": "Ωραίο φορτηγό!",
+    "qr_comp_005": "Ωραίο τρέιλερ!",
+    "qr_comp_006": "Ωραία βαφή!",
+    "qr_comp_007": "Ωραία αξεσουάρ!",
+    "qr_gree_001": "Γειά!",
+    "qr_gree_002": "Καλώς ήρθες.",
+    "qr_gree_003": "Χαίρομαι που σε βλέπω!",
+    "qr_gree_004": "Καλό ταξίδι!",
+    "qr_gree_005": "Τα λέμε!",
+    "qr_gree_006": "Θα φύγω τώρα.",
+    "qr_gree_007": "Έχω τελειώσει για σήμερα."
+  },
+  "en_gb": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Convoy",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reactions",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Greetings & Byes",
+    "qr_dire_001": "Left.",
+    "qr_dire_002": "Right.",
+    "qr_dire_003": "Straight on.",
+    "qr_dire_004": "Turn around.",
+    "qr_dire_005": "Wrong way!",
+    "qr_dire_006": "Slow down.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Let me go first!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Let's take a break.",
+    "qr_conv_005": "Wait for me please!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "I'll find the job!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Ready?",
+    "qr_soci_003": "Ready!",
+    "qr_soci_004": "One more delivery?",
+    "qr_soci_005": "Group photo?",
+    "qr_soci_006": "Emergency stop!",
+    "qr_soci_007": "Be right back.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Repairs needed.",
+    "qr_serv_003": "I'm going to upgrade.",
+    "qr_serv_004": "Out of fuel.",
+    "qr_serv_005": "Crashed!",
+    "qr_serv_006": "Let's stop for fuel.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Yes!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "No problem.",
+    "qr_reac_005": "Sure.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Thanks!",
+    "qr_comp_002": "Good job!",
+    "qr_comp_003": "Good driving!",
+    "qr_comp_004": "Nice truck!",
+    "qr_comp_005": "Nice trailer!",
+    "qr_comp_006": "Nice paint job!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Hi!",
+    "qr_gree_002": "Welcome.",
+    "qr_gree_003": "Good to see you!",
+    "qr_gree_004": "Happy journey!",
+    "qr_gree_005": "See you!",
+    "qr_gree_006": "I'm going to go now.",
+    "qr_gree_007": "I'm done for today."
+  },
+  "en_us": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Convoy",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reactions",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Greetings & Byes",
+    "qr_dire_001": "Left.",
+    "qr_dire_002": "Right.",
+    "qr_dire_003": "Straight on.",
+    "qr_dire_004": "Turn around.",
+    "qr_dire_005": "Wrong way!",
+    "qr_dire_006": "Slow down.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Let me go first!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Let's take a break.",
+    "qr_conv_005": "Wait for me please!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "I'll find the job!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Ready?",
+    "qr_soci_003": "Ready!",
+    "qr_soci_004": "One more delivery?",
+    "qr_soci_005": "Group photo?",
+    "qr_soci_006": "Emergency stop!",
+    "qr_soci_007": "Be right back.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Repairs needed.",
+    "qr_serv_003": "I'm going to upgrade.",
+    "qr_serv_004": "Out of fuel.",
+    "qr_serv_005": "Crashed!",
+    "qr_serv_006": "Let's stop for fuel.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Yes!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "No problem.",
+    "qr_reac_005": "Sure.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Thanks!",
+    "qr_comp_002": "Good job!",
+    "qr_comp_003": "Good driving!",
+    "qr_comp_004": "Nice truck!",
+    "qr_comp_005": "Nice trailer!",
+    "qr_comp_006": "Nice paint job!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Hi!",
+    "qr_gree_002": "Welcome.",
+    "qr_gree_003": "Good to see you!",
+    "qr_gree_004": "Happy journey!",
+    "qr_gree_005": "See you!",
+    "qr_gree_006": "I'm going to go now.",
+    "qr_gree_007": "I'm done for today."
+  },
+  "es_es": {
+    "mp_directions_replies": "Indicaciones",
+    "mp_convoy_replies": "De convoy",
+    "mp_social_replies": "Sociales",
+    "mp_service_replies": "Asistencias",
+    "mp_reactions_replies": "Reacciones",
+    "mp_compliments_replies": "Elogios",
+    "mp_greetings_replies": "Saludos y despedidas",
+    "qr_dire_001": "A la izquierda.",
+    "qr_dire_002": "A la derecha.",
+    "qr_dire_003": "Todo recto.",
+    "qr_dire_004": "Hay que dar la vuelta.",
+    "qr_dire_005": "¡Ruta equivocada!",
+    "qr_dire_006": "Ahora despacio.",
+    "qr_dire_007": "Paremos.",
+    "qr_conv_001": "¡Me pongo el primero!",
+    "qr_conv_002": "¡Te sigo!",
+    "qr_conv_003": "En marcha.",
+    "qr_conv_004": "Tomemos un descanso.",
+    "qr_conv_005": "¡Esperadme!",
+    "qr_conv_006": "¡Atentos por ahí atrás!",
+    "qr_conv_007": "¡Tengo la entrega!",
+    "qr_soci_001": "¡Manos a la obra!",
+    "qr_soci_002": "¿Todo listo?",
+    "qr_soci_003": "¡Todo listo!",
+    "qr_soci_004": "¿Una entrega más?",
+    "qr_soci_005": "¿Foto de grupo?",
+    "qr_soci_006": "¡Parada de emergencia!",
+    "qr_soci_007": "Vuelvo enseguida.",
+    "qr_serv_001": "¡Voy al taller!",
+    "qr_serv_002": "Necesito reparaciones.",
+    "qr_serv_003": "Voy a hacer alguna mejora.",
+    "qr_serv_004": "Estoy sin combustible.",
+    "qr_serv_005": "¡He tenido un accidente!",
+    "qr_serv_006": "Paremos para repostar.",
+    "qr_serv_007": "Paremos para pasar por el taller.",
+    "qr_reac_001": "¡Sí!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Vale.",
+    "qr_reac_004": "Sin problema.",
+    "qr_reac_005": "Claro.",
+    "qr_reac_006": "¡Lo siento!",
+    "qr_reac_007": "¡Ups!",
+    "qr_comp_001": "¡Gracias!",
+    "qr_comp_002": "¡Buen trabajo!",
+    "qr_comp_003": "¡Así se conduce!",
+    "qr_comp_004": "¡Bonito camión!",
+    "qr_comp_005": "¡Bonito remolque!",
+    "qr_comp_006": "¡Bonita pintura!",
+    "qr_comp_007": "¡Molan esos accesorios!",
+    "qr_gree_001": "¡Hola!",
+    "qr_gree_002": "Se te da la bienvenida.",
+    "qr_gree_003": "¡Qué bueno verte!",
+    "qr_gree_004": "Buen viaje.",
+    "qr_gree_005": "Nos vemos.",
+    "qr_gree_006": "Me voy.",
+    "qr_gree_007": "Por hoy es suficiente."
+  },
+  "es_la": {
+    "mp_directions_replies": "Indicaciones",
+    "mp_convoy_replies": "De convoy",
+    "mp_social_replies": "Sociales",
+    "mp_service_replies": "Asistencias",
+    "mp_reactions_replies": "Reacciones",
+    "mp_compliments_replies": "Elogios",
+    "mp_greetings_replies": "Saludos y despedidas",
+    "qr_dire_001": "A la izquierda.",
+    "qr_dire_002": "A la derecha.",
+    "qr_dire_003": "Todo recto.",
+    "qr_dire_004": "Hay que dar la vuelta.",
+    "qr_dire_005": "¡Ruta equivocada!",
+    "qr_dire_006": "Ahora despacio.",
+    "qr_dire_007": "Paremos.",
+    "qr_conv_001": "¡Me pongo el primero!",
+    "qr_conv_002": "¡Te sigo!",
+    "qr_conv_003": "En marcha.",
+    "qr_conv_004": "Tomemos un descanso.",
+    "qr_conv_005": "¡Esperadme!",
+    "qr_conv_006": "¡Atentos por ahí atrás!",
+    "qr_conv_007": "¡Tengo la entrega!",
+    "qr_soci_001": "¡Manos a la obra!",
+    "qr_soci_002": "¿Todo listo?",
+    "qr_soci_003": "¡Todo listo!",
+    "qr_soci_004": "¿Una entrega más?",
+    "qr_soci_005": "¿Foto de grupo?",
+    "qr_soci_006": "¡Parada de emergencia!",
+    "qr_soci_007": "Vuelvo enseguida.",
+    "qr_serv_001": "¡Voy al taller!",
+    "qr_serv_002": "Necesito reparaciones.",
+    "qr_serv_003": "Voy a hacer alguna mejora.",
+    "qr_serv_004": "Estoy sin combustible.",
+    "qr_serv_005": "¡He tenido un accidente!",
+    "qr_serv_006": "Paremos para repostar.",
+    "qr_serv_007": "Paremos para pasar por el taller.",
+    "qr_reac_001": "¡Sí!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Vale.",
+    "qr_reac_004": "Sin problema.",
+    "qr_reac_005": "Claro.",
+    "qr_reac_006": "¡Lo siento!",
+    "qr_reac_007": "¡Ups!",
+    "qr_comp_001": "¡Gracias!",
+    "qr_comp_002": "¡Buen trabajo!",
+    "qr_comp_003": "¡Así se conduce!",
+    "qr_comp_004": "¡Bonito camión!",
+    "qr_comp_005": "¡Bonito remolque!",
+    "qr_comp_006": "¡Bonita pintura!",
+    "qr_comp_007": "¡Molan esos accesorios!",
+    "qr_gree_001": "¡Hola!",
+    "qr_gree_002": "Se te da la bienvenida.",
+    "qr_gree_003": "¡Qué bueno verte!",
+    "qr_gree_004": "Buen viaje.",
+    "qr_gree_005": "Nos vemos.",
+    "qr_gree_006": "Me voy.",
+    "qr_gree_007": "Por hoy es suficiente."
+  },
+  "et_ee": {
+    "mp_directions_replies": "Juhised",
+    "mp_convoy_replies": "Kolonn",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Teenindus",
+    "mp_reactions_replies": "Reaktsioonid",
+    "mp_compliments_replies": "Komplimendid",
+    "mp_greetings_replies": "Greetings & Byes",
+    "qr_dire_001": "Vasakule.",
+    "qr_dire_002": "Paremale.",
+    "qr_dire_003": "Otse edasi.",
+    "qr_dire_004": "Pööra ümber.",
+    "qr_dire_005": "Vale suund!",
+    "qr_dire_006": "Aeglusta.",
+    "qr_dire_007": "Peatu.",
+    "qr_conv_001": "Las ma lähen ees!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Teeme peatuse.",
+    "qr_conv_005": "Oodake mind!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "I'll find the job!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Valmis?",
+    "qr_soci_003": "Valmis!",
+    "qr_soci_004": "One more delivery?",
+    "qr_soci_005": "Group photo?",
+    "qr_soci_006": "Emergency stop!",
+    "qr_soci_007": "Be right back.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Repairs needed.",
+    "qr_serv_003": "I'm going to upgrade.",
+    "qr_serv_004": "Kütus on otsas.",
+    "qr_serv_005": "Crashed!",
+    "qr_serv_006": "Peatume tankimiseks.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Jah!",
+    "qr_reac_002": "Ei.",
+    "qr_reac_003": "Okei.",
+    "qr_reac_004": "No problem.",
+    "qr_reac_005": "Muidugi.",
+    "qr_reac_006": "Vabandust!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Aitäh!",
+    "qr_comp_002": "Tubli töö!",
+    "qr_comp_003": "Good driving!",
+    "qr_comp_004": "Nice truck!",
+    "qr_comp_005": "Nice trailer!",
+    "qr_comp_006": "Nice paint job!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Tere!",
+    "qr_gree_002": "Tere tulemast!",
+    "qr_gree_003": "Tore teid näha!",
+    "qr_gree_004": "Head reisi!",
+    "qr_gree_005": "Nägemist!",
+    "qr_gree_006": "I'm going to go now.",
+    "qr_gree_007": "Ma olen tänaseks lõpetanud."
+  },
+  "eu_es": {
+    "mp_directions_replies": "Norabideak",
+    "mp_convoy_replies": "Konboia",
+    "mp_social_replies": "Soziala",
+    "mp_service_replies": "Zerbitzuak",
+    "mp_reactions_replies": "Erreakzioak",
+    "mp_compliments_replies": "Konplimenduak",
+    "mp_greetings_replies": "Agurrak",
+    "qr_dire_001": "Ezkerrera.",
+    "qr_dire_002": "Eskuinera.",
+    "qr_dire_003": "Zuzen segi.",
+    "qr_dire_004": "Bira egin.",
+    "qr_dire_005": "Wrong way!",
+    "qr_dire_006": "Abiadura moteldu.",
+    "qr_dire_007": "Gelditu.",
+    "qr_conv_001": "Let me go first!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Let's take a break.",
+    "qr_conv_005": "Itxaron, mesedez!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "Nik aurkituko dut lana!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Ready?",
+    "qr_soci_003": "Ready!",
+    "qr_soci_004": "Beste entrega bat?",
+    "qr_soci_005": "Taldeko argazkia?",
+    "qr_soci_006": "Larrialdi geldialdia!",
+    "qr_soci_007": "Berehala itzuliko naiz.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Konponketak behar ditut.",
+    "qr_serv_003": "Hobekuntzaren bat egingo dut.",
+    "qr_serv_004": "Erregairik gabe gelditu naiz.",
+    "qr_serv_005": "Talka egin dut!",
+    "qr_serv_006": "Let's stop for fuel.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Bai!",
+    "qr_reac_002": "Ez.",
+    "qr_reac_003": "Ados.",
+    "qr_reac_004": "Arazorik ez.",
+    "qr_reac_005": "Jakina.",
+    "qr_reac_006": "Barkatu!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Eskerrik asko!",
+    "qr_comp_002": "Lan ona!",
+    "qr_comp_003": "Gidatze ona!",
+    "qr_comp_004": "Kamioi ederra!",
+    "qr_comp_005": "Trailer ederra!",
+    "qr_comp_006": "Pintura ederra!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Kaixo!",
+    "qr_gree_002": "Ongi etorri.",
+    "qr_gree_003": "Pozten nau zu ikusteak!",
+    "qr_gree_004": "Ongi joan!",
+    "qr_gree_005": "Ikusi arte!",
+    "qr_gree_006": "Orain joango naiz.",
+    "qr_gree_007": "Gaurkoz nahikoa dut."
+  },
+  "fi_fi": {
+    "mp_directions_replies": "Ohjeet",
+    "mp_convoy_replies": "Saattue",
+    "mp_social_replies": "Sosiaalinen",
+    "mp_service_replies": "Huolto",
+    "mp_reactions_replies": "Reaktiot",
+    "mp_compliments_replies": "Kehut",
+    "mp_greetings_replies": "Tervehdykset ja hyvästelyt",
+    "qr_dire_001": "Vasempaan.",
+    "qr_dire_002": "Oikeaan.",
+    "qr_dire_003": "Suoraan vaan.",
+    "qr_dire_004": "Käänny ympäri.",
+    "qr_dire_005": "Väärä suunta!",
+    "qr_dire_006": "Hidasta.",
+    "qr_dire_007": "Pysähdy.",
+    "qr_conv_001": "Minä voin mennä ensin!",
+    "qr_conv_002": "Tulen perässä!",
+    "qr_conv_003": "Seuraa minua.",
+    "qr_conv_004": "Pidetään tauko.",
+    "qr_conv_005": "Odota minua!",
+    "qr_conv_006": "Takanasi!",
+    "qr_conv_007": "Etsin kuljetuksen!",
+    "qr_soci_001": "Annetaan mennä!",
+    "qr_soci_002": "Valmiina?",
+    "qr_soci_003": "Valmiina!",
+    "qr_soci_004": "Vielä yksi toimitus?",
+    "qr_soci_005": "Ryhmäkuva?",
+    "qr_soci_006": "Hätäpysähtyminen!",
+    "qr_soci_007": "Palaan pian.",
+    "qr_serv_001": "Menossa huoltoon!",
+    "qr_serv_002": "Tarvitsen korjauksia.",
+    "qr_serv_003": "Menen päivittämään ajoneuvoa.",
+    "qr_serv_004": "Polttoaine loppui.",
+    "qr_serv_005": "Kaatui!",
+    "qr_serv_006": "Pysähdytään tankkaamaan.",
+    "qr_serv_007": "Käydään huollossa.",
+    "qr_reac_001": "Kyllä!",
+    "qr_reac_002": "Ei.",
+    "qr_reac_003": "Okei.",
+    "qr_reac_004": "Ei hätää.",
+    "qr_reac_005": "Toki.",
+    "qr_reac_006": "Anteeksi!",
+    "qr_reac_007": "Ohhoh!",
+    "qr_comp_001": "Kiitos!",
+    "qr_comp_002": "Hyvää työtä!",
+    "qr_comp_003": "Hyvin ajettu!",
+    "qr_comp_004": "Hieno kuorma-auto!",
+    "qr_comp_005": "Hieno perävaunu!",
+    "qr_comp_006": "Hieno maalaus!",
+    "qr_comp_007": "Hienoja lisävarusteita!",
+    "qr_gree_001": "Hei!",
+    "qr_gree_002": "Tervetuloa.",
+    "qr_gree_003": "Mukava nähdä!",
+    "qr_gree_004": "Hyvää matkaa!",
+    "qr_gree_005": "Nähdään taas!",
+    "qr_gree_006": "Poistun nyt.",
+    "qr_gree_007": "Siinäpä ajelua tälle päivälle."
+  },
+  "fr_ca": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Convoi",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Réactions",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Salutations & au revoir",
+    "qr_dire_001": "À gauche.",
+    "qr_dire_002": "À droite.",
+    "qr_dire_003": "Tout droit.",
+    "qr_dire_004": "Demi-tour.",
+    "qr_dire_005": "Mauvaise direction !",
+    "qr_dire_006": "Ralentissez.",
+    "qr_dire_007": "Arrêtez-vous.",
+    "qr_conv_001": "Laissez-moi prendre la tête !",
+    "qr_conv_002": "Je vous suis !",
+    "qr_conv_003": "Suivez-moi.",
+    "qr_conv_004": "Faisons une pause.",
+    "qr_conv_005": "Attendez-moi s'il vous plaît !",
+    "qr_conv_006": "Regardez derrière !",
+    "qr_conv_007": "Je vais trouver un contrat !",
+    "qr_soci_001": "Allons-y !",
+    "qr_soci_002": "Prêt ?",
+    "qr_soci_003": "Prêt !",
+    "qr_soci_004": "Encore une livraison ?",
+    "qr_soci_005": "Photo de groupe ?",
+    "qr_soci_006": "Arrêt d'urgence !",
+    "qr_soci_007": "Je reviens.",
+    "qr_serv_001": "Je vais au garage !",
+    "qr_serv_002": "Réparations nécessaires.",
+    "qr_serv_003": "Je vais améliorer.",
+    "qr_serv_004": "Réservoir de carburant vide.",
+    "qr_serv_005": "Accidenté !",
+    "qr_serv_006": "Arrêtons-nous pour faire le plein.",
+    "qr_serv_007": "Arrêtons-nous au garage.",
+    "qr_reac_001": "Oui !",
+    "qr_reac_002": "Non.",
+    "qr_reac_003": "OK.",
+    "qr_reac_004": "Pas de problème.",
+    "qr_reac_005": "Bien sûr.",
+    "qr_reac_006": "Pardon !",
+    "qr_reac_007": "Oups !",
+    "qr_comp_001": "Merci !",
+    "qr_comp_002": "Bon travail !",
+    "qr_comp_003": "Bonne conduite !",
+    "qr_comp_004": "Joli camion !",
+    "qr_comp_005": "Jolie remorque !",
+    "qr_comp_006": "Jolie peinture !",
+    "qr_comp_007": "Sympas les accessoires !",
+    "qr_gree_001": "Salut !",
+    "qr_gree_002": "Bienvenue.",
+    "qr_gree_003": "Sympa de te voir !",
+    "qr_gree_004": "Bon voyage !",
+    "qr_gree_005": "À bientôt !",
+    "qr_gree_006": "Je dois partir.",
+    "qr_gree_007": "J'en ai fini pour aujourd'hui."
+  },
+  "fr_fr": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Convoi",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Réactions",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Salutations & au revoir",
+    "qr_dire_001": "À gauche.",
+    "qr_dire_002": "À droite.",
+    "qr_dire_003": "Tout droit.",
+    "qr_dire_004": "Demi-tour.",
+    "qr_dire_005": "Mauvaise direction !",
+    "qr_dire_006": "Ralentissez.",
+    "qr_dire_007": "Arrêtez-vous.",
+    "qr_conv_001": "Laissez-moi prendre la tête !",
+    "qr_conv_002": "Je vous suis !",
+    "qr_conv_003": "Suivez-moi.",
+    "qr_conv_004": "Faisons une pause.",
+    "qr_conv_005": "Attendez-moi s'il vous plaît !",
+    "qr_conv_006": "Regardez derrière !",
+    "qr_conv_007": "Je vais trouver une mission !",
+    "qr_soci_001": "Allons-y !",
+    "qr_soci_002": "Prêt ?",
+    "qr_soci_003": "Prêt !",
+    "qr_soci_004": "Encore une livraison ?",
+    "qr_soci_005": "Photo de groupe ?",
+    "qr_soci_006": "Arrêt d'urgence !",
+    "qr_soci_007": "Je reviens.",
+    "qr_serv_001": "Je vais au garage !",
+    "qr_serv_002": "Réparations nécessaires.",
+    "qr_serv_003": "Je vais améliorer.",
+    "qr_serv_004": "Plus de carburant.",
+    "qr_serv_005": "Accidenté !",
+    "qr_serv_006": "Arrêtons-nous pour faire le plein.",
+    "qr_serv_007": "Arrêtons-nous au garage.",
+    "qr_reac_001": "Oui !",
+    "qr_reac_002": "Non.",
+    "qr_reac_003": "OK.",
+    "qr_reac_004": "Pas de problème.",
+    "qr_reac_005": "Bien sûr.",
+    "qr_reac_006": "Pardon !",
+    "qr_reac_007": "Oups !",
+    "qr_comp_001": "Merci !",
+    "qr_comp_002": "Beau travail !",
+    "qr_comp_003": "Bonne conduite !",
+    "qr_comp_004": "Joli camion !",
+    "qr_comp_005": "Jolie remorque !",
+    "qr_comp_006": "Jolie peinture !",
+    "qr_comp_007": "Sympas les accessoires !",
+    "qr_gree_001": "Salut !",
+    "qr_gree_002": "Bienvenue.",
+    "qr_gree_003": "Sympa de te voir !",
+    "qr_gree_004": "Bon voyage !",
+    "qr_gree_005": "À bientôt !",
+    "qr_gree_006": "Je dois partir.",
+    "qr_gree_007": "J'en ai fini pour aujourd'hui."
+  },
+  "gl_es": {
+    "mp_directions_replies": "Direccións",
+    "mp_convoy_replies": "Convoi",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Servizo",
+    "mp_reactions_replies": "Reaccións",
+    "mp_compliments_replies": "Eloxios",
+    "mp_greetings_replies": "Saúdos e despedidas",
+    "qr_dire_001": "Esquerda.",
+    "qr_dire_002": "Dereita.",
+    "qr_dire_003": "Recto.",
+    "qr_dire_004": "Dar a volta.",
+    "qr_dire_005": "Dirección errada!",
+    "qr_dire_006": "Amodo.",
+    "qr_dire_007": "Para.",
+    "qr_conv_001": "Déixame ir primeiro!",
+    "qr_conv_002": "Estou a seguirte!",
+    "qr_conv_003": "Ségueme.",
+    "qr_conv_004": "Imos facer umha pausa.",
+    "qr_conv_005": "Agarda por min, por favor!",
+    "qr_conv_006": "Ollo aí atrás!",
+    "qr_conv_007": "Eu atopo traballo!",
+    "qr_soci_001": "Fagámolo!",
+    "qr_soci_002": "Preparado?",
+    "qr_soci_003": "Preparado!",
+    "qr_soci_004": "Unha entrega máis?",
+    "qr_soci_005": "Foto de grupo?",
+    "qr_soci_006": "Parada de emerxencia!",
+    "qr_soci_007": "Volvo xa.",
+    "qr_serv_001": "Vou ao taller!",
+    "qr_serv_002": "Preciso de reparacións.",
+    "qr_serv_003": "Vou facer algunha mellora.",
+    "qr_serv_004": "Quedei sen combustible.",
+    "qr_serv_005": "Choquei!",
+    "qr_serv_006": "Paremos na gasolineira.",
+    "qr_serv_007": "Paremos no taller.",
+    "qr_reac_001": "Si!",
+    "qr_reac_002": "Non.",
+    "qr_reac_003": "De acordo.",
+    "qr_reac_004": "Sen problema.",
+    "qr_reac_005": "Claro.",
+    "qr_reac_006": "Desculpa!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Grazas!",
+    "qr_comp_002": "Bo traballo!",
+    "qr_comp_003": "Boa condución!",
+    "qr_comp_004": "Bonito camión!",
+    "qr_comp_005": "Bonito remolque!",
+    "qr_comp_006": "Bonita pintura!",
+    "qr_comp_007": "Bonitos accesorios!",
+    "qr_gree_001": "Ola!",
+    "qr_gree_002": "Benvido/a.",
+    "qr_gree_003": "Alégrome de verte!",
+    "qr_gree_004": "Boa viaxe!",
+    "qr_gree_005": "Vémonos!",
+    "qr_gree_006": "Vou marchar agora.",
+    "qr_gree_007": "Xa chega por hoxe."
+  },
+  "hr_hr": {
+    "mp_directions_replies": "Upute",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Društveni",
+    "mp_service_replies": "Servis",
+    "mp_reactions_replies": "Replike",
+    "mp_compliments_replies": "Komplimenti",
+    "mp_greetings_replies": "Dobrodošlice & Pozdravi",
+    "qr_dire_001": "Lijevo.",
+    "qr_dire_002": "Desno.",
+    "qr_dire_003": "Ravno.",
+    "qr_dire_004": "Okreni se.",
+    "qr_dire_005": "Krivi put!",
+    "qr_dire_006": "Uspori.",
+    "qr_dire_007": "Stani.",
+    "qr_conv_001": "Pusti me prvog!",
+    "qr_conv_002": "Slijedim!",
+    "qr_conv_003": "Slijedi me.",
+    "qr_conv_004": "Uzmimo stanku.",
+    "qr_conv_005": "Molim Vas pričekajte me!",
+    "qr_conv_006": "Provjeri iza!",
+    "qr_conv_007": "Naći ću posao!",
+    "qr_soci_001": "Idemo!",
+    "qr_soci_002": "Spremni?",
+    "qr_soci_003": "Spreman!",
+    "qr_soci_004": "Još jedna dostava?",
+    "qr_soci_005": "Grupna fotografija?",
+    "qr_soci_006": "Hitno zaustavljanje!",
+    "qr_soci_007": "Vraćam se odmah.",
+    "qr_serv_001": "Idem na servis!",
+    "qr_serv_002": "Potrebni popravci.",
+    "qr_serv_003": "Idem nadograditi.",
+    "qr_serv_004": "Bez goriva.",
+    "qr_serv_005": "Sudaren!",
+    "qr_serv_006": "Idemo po gorivo.",
+    "qr_serv_007": "Stanimo kod servisa.",
+    "qr_reac_001": "Da!",
+    "qr_reac_002": "Ne.",
+    "qr_reac_003": "U redu.",
+    "qr_reac_004": "Nema problema.",
+    "qr_reac_005": "Naravno.",
+    "qr_reac_006": "Oprosti!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Hvala!",
+    "qr_comp_002": "Dobro odrađeno!",
+    "qr_comp_003": "Dobra vožnja!",
+    "qr_comp_004": "Lijep kamion!",
+    "qr_comp_005": "Lijepa prikolica!",
+    "qr_comp_006": "Lijepa boja!",
+    "qr_comp_007": "Fora dodatci!",
+    "qr_gree_001": "Bok!",
+    "qr_gree_002": "Dobrodošli.",
+    "qr_gree_003": "Drago mi je što te vidim!",
+    "qr_gree_004": "Sretan put!",
+    "qr_gree_005": "Vidimo se!",
+    "qr_gree_006": "Idem sada.",
+    "qr_gree_007": "Dosta za danas."
+  },
+  "hu_hu": {
+    "mp_directions_replies": "Útbaigazítás",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Csevegés",
+    "mp_service_replies": "Szolgáltatások",
+    "mp_reactions_replies": "Reakciók",
+    "mp_compliments_replies": "Dicséretek",
+    "mp_greetings_replies": "Köszönések",
+    "qr_dire_001": "Balra!",
+    "qr_dire_002": "Jobbra!",
+    "qr_dire_003": "Egyenesen!",
+    "qr_dire_004": "Fordulj meg!",
+    "qr_dire_005": "Menetiránnyal szemben haladunk!",
+    "qr_dire_006": "Lassítsunk!",
+    "qr_dire_007": "Álljunk meg!",
+    "qr_conv_001": "Hadd menjek elöl!",
+    "qr_conv_002": "Követlek!",
+    "qr_conv_003": "Kövessetek!",
+    "qr_conv_004": "Szusszanjunk egyet!",
+    "qr_conv_005": "Várjatok meg, légyszi!",
+    "qr_conv_006": "Nézzetek csak hátra!",
+    "qr_conv_007": "Keresek egy melót!",
+    "qr_soci_001": "Na, csapjunk bele!",
+    "qr_soci_002": "Csapathatjuk?",
+    "qr_soci_003": "Csapassuk!",
+    "qr_soci_004": "Még egy fuvar?",
+    "qr_soci_005": "Csoportkép, valaki?",
+    "qr_soci_006": "Vészhelyzet! Megállni!",
+    "qr_soci_007": "Mindjárt visszajövök.",
+    "qr_serv_001": "Szervizbe kell mennem!",
+    "qr_serv_002": "Elkelne egy kis javítás.",
+    "qr_serv_003": "Fejlesztek a vason.",
+    "qr_serv_004": "Porzik a tankom!",
+    "qr_serv_005": "Karamboloztam!",
+    "qr_serv_006": "Álljunk meg egy kis naftára!",
+    "qr_serv_007": "Álljunk meg a szerviznél!",
+    "qr_reac_001": "Oké!",
+    "qr_reac_002": "Na nem!",
+    "qr_reac_003": "Rendben!",
+    "qr_reac_004": "No problemo!",
+    "qr_reac_005": "Simán.",
+    "qr_reac_006": "Bocsesz!",
+    "qr_reac_007": "Hopszi!",
+    "qr_comp_001": "Köszi!",
+    "qr_comp_002": "Szép munka!",
+    "qr_comp_003": "Remek vezetés!",
+    "qr_comp_004": "Kúl a kamion!",
+    "qr_comp_005": "Csini a pótod!",
+    "qr_comp_006": "Karaj a festés!",
+    "qr_comp_007": "Patent kiegészítők!",
+    "qr_gree_001": "Szevasz!",
+    "qr_gree_002": "Üdv!",
+    "qr_gree_003": "Örülök, hogy ismét látlak!",
+    "qr_gree_004": "Boldog gurigát!",
+    "qr_gree_005": "Viszlát!",
+    "qr_gree_006": "Ideje indulnom.",
+    "qr_gree_007": "Mára végeztem!"
+  },
+  "it_it": {
+    "mp_directions_replies": "Direzioni",
+    "mp_convoy_replies": "Convoglio",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Officina",
+    "mp_reactions_replies": "Reazioni",
+    "mp_compliments_replies": "Complimenti",
+    "mp_greetings_replies": "Complimenti & Saluti",
+    "qr_dire_001": "Sinistra.",
+    "qr_dire_002": "Destra.",
+    "qr_dire_003": "Dritto.",
+    "qr_dire_004": "Torna indietro.",
+    "qr_dire_005": "Direzione sbagliata!",
+    "qr_dire_006": "Rallentare.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Lasciami andare per primo!",
+    "qr_conv_002": "Ti seguo!",
+    "qr_conv_003": "Seguimi.",
+    "qr_conv_004": "Prendiamoci una pausa.",
+    "qr_conv_005": "Aspettatemi per favore!",
+    "qr_conv_006": "Guarda dietro!",
+    "qr_conv_007": "Ho trovato il lavoro!",
+    "qr_soci_001": "Facciamolo!",
+    "qr_soci_002": "Pronti?",
+    "qr_soci_003": "Pronti!",
+    "qr_soci_004": "Un'altra consegna?",
+    "qr_soci_005": "Foto di gruppo?",
+    "qr_soci_006": "Arresto di emergenza!",
+    "qr_soci_007": "Torno subito.",
+    "qr_serv_001": "Vado in officina!",
+    "qr_serv_002": "Ho bisogno di riparazioni.",
+    "qr_serv_003": "Ho intenzione di aggiornare.",
+    "qr_serv_004": "Carburante finito...",
+    "qr_serv_005": "Ho preso il muro!",
+    "qr_serv_006": "Fermiamoci per il rifornimento.",
+    "qr_serv_007": "Fermiamoci in officina.",
+    "qr_reac_001": "Si!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "Nessun problema.",
+    "qr_reac_005": "Certo.",
+    "qr_reac_006": "Scusa!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Grazie!",
+    "qr_comp_002": "Ottimo lavoro!",
+    "qr_comp_003": "Guidi bene!",
+    "qr_comp_004": "Bel camion!",
+    "qr_comp_005": "Bel rimorchio!",
+    "qr_comp_006": "Bella livrea!",
+    "qr_comp_007": "Begli accessori!",
+    "qr_gree_001": "Ciao!",
+    "qr_gree_002": "Benvenuto.",
+    "qr_gree_003": "Che bello vederti!",
+    "qr_gree_004": "Buon viaggio!",
+    "qr_gree_005": "Ci vediamo!",
+    "qr_gree_006": "Ora devo andare.",
+    "qr_gree_007": "Per oggi ho finito."
+  },
+  "ja_jp": {
+    "mp_directions_replies": "方向",
+    "mp_convoy_replies": "コンボイ",
+    "mp_social_replies": "ソーシャル",
+    "mp_service_replies": "修理",
+    "mp_reactions_replies": "リアクション",
+    "mp_compliments_replies": "ほめ言葉",
+    "mp_greetings_replies": "挨拶",
+    "qr_dire_001": "左",
+    "qr_dire_002": "右",
+    "qr_dire_003": "真っ直ぐ",
+    "qr_dire_004": "方向転換",
+    "qr_dire_005": "間違えた!",
+    "qr_dire_006": "速度を落として",
+    "qr_dire_007": "止まって",
+    "qr_conv_001": "先に行かせて!",
+    "qr_conv_002": "付いて行ってるよ!",
+    "qr_conv_003": "付いてきて",
+    "qr_conv_004": "休憩しよう",
+    "qr_conv_005": "ちょっと待って!",
+    "qr_conv_006": "後ろを確認!",
+    "qr_conv_007": "仕事を見つけてくる!",
+    "qr_soci_001": "やってやろうぜ!",
+    "qr_soci_002": "準備できた?",
+    "qr_soci_003": "準備完了!",
+    "qr_soci_004": "もう一仕事する?",
+    "qr_soci_005": "集合写真を撮らない?",
+    "qr_soci_006": "緊急停止!",
+    "qr_soci_007": "すぐに戻るよ",
+    "qr_serv_001": "修理に行ってきます!",
+    "qr_serv_002": "修理が必要だ",
+    "qr_serv_003": "アップグレードに行ってくる",
+    "qr_serv_004": "ガス欠だ",
+    "qr_serv_005": "事故った!",
+    "qr_serv_006": "給油しに行こう",
+    "qr_serv_007": "修理しに行こう",
+    "qr_reac_001": "はい!",
+    "qr_reac_002": "いいえ",
+    "qr_reac_003": "オーケー",
+    "qr_reac_004": "ノープロブレム",
+    "qr_reac_005": "良いよ",
+    "qr_reac_006": "ごめん!",
+    "qr_reac_007": "おっと!",
+    "qr_comp_001": "ありがとう!",
+    "qr_comp_002": "よくやった!",
+    "qr_comp_003": "良い運転だったね!",
+    "qr_comp_004": "良いトラックだね!",
+    "qr_comp_005": "良いトレーラーだね!",
+    "qr_comp_006": "良いペイントジョブだね!",
+    "qr_comp_007": "かっこいいアクセサリーだね!",
+    "qr_gree_001": "やあ!",
+    "qr_gree_002": "ようこそ",
+    "qr_gree_003": "会えてうれしいよ!",
+    "qr_gree_004": "良い旅を!",
+    "qr_gree_005": "またね!",
+    "qr_gree_006": "今から行きます",
+    "qr_gree_007": "今日はこれでおしまい"
+  },
+  "ka_ge": {
+    "mp_directions_replies": "მიმართულება",
+    "mp_convoy_replies": "ავტოკოლონა",
+    "mp_social_replies": "ურთიერთობა",
+    "mp_service_replies": "გამართვა",
+    "mp_reactions_replies": "გამოხმაურება",
+    "mp_compliments_replies": "შექება",
+    "mp_greetings_replies": "მისალმება და დამშვიდებება",
+    "qr_dire_001": "მარცხნივ.",
+    "qr_dire_002": "მარჯვნივ.",
+    "qr_dire_003": "პირდაპირ.",
+    "qr_dire_004": "მოტრიალება.",
+    "qr_dire_005": "მანდეთკენ არა!",
+    "qr_dire_006": "ცოტა ნელა.",
+    "qr_dire_007": "სდექ.",
+    "qr_conv_001": "ჯერ მე წავალ!",
+    "qr_conv_002": "მოგყვები!",
+    "qr_conv_003": "მომყევი.",
+    "qr_conv_004": "შევისვენოთ.",
+    "qr_conv_005": "დამელოდე, რა!",
+    "qr_conv_006": "უკან გაიხედე!",
+    "qr_conv_007": "სამუშაოს მოვნახავ!",
+    "qr_soci_001": "შევასრულოთ!",
+    "qr_soci_002": "მზად ხარ?",
+    "qr_soci_003": "მზად ვარ!",
+    "qr_soci_004": "კიდევ ერთი სამუშაო?",
+    "qr_soci_005": "ჯგუფური ფოტო?",
+    "qr_soci_006": "სასწრაფო გაჩერება!",
+    "qr_soci_007": "მალე დავბრუნდები.",
+    "qr_serv_001": "სახელოსნოში წავიდეთ!",
+    "qr_serv_002": "შესაკეთებელია.",
+    "qr_serv_003": "უნდა გავაწყო.",
+    "qr_serv_004": "საწვავი მითავდება.",
+    "qr_serv_005": "დავეჯახე!",
+    "qr_serv_006": "საწვავზე გავჩერდეთ.",
+    "qr_serv_007": "სახელოსნოში გავჩერდეთ.",
+    "qr_reac_001": "კი!",
+    "qr_reac_002": "არა.",
+    "qr_reac_003": "კარგი.",
+    "qr_reac_004": "არა უშავს.",
+    "qr_reac_005": "რა თქმა უნდა.",
+    "qr_reac_006": "ბოდიში!",
+    "qr_reac_007": "უჰ!",
+    "qr_comp_001": "გმადლობ!",
+    "qr_comp_002": "კარგი ნამუშევარია!",
+    "qr_comp_003": "კარგად მართავ!",
+    "qr_comp_004": "მაგარი სატვირთოა!",
+    "qr_comp_005": "მაგარი მისაბმელია!",
+    "qr_comp_006": "მაგარი მოხატულობაა!",
+    "qr_comp_007": "მაგარი გაწყობილია!",
+    "qr_gree_001": "გამარჯობა!",
+    "qr_gree_002": "მოგესალმებით.",
+    "qr_gree_003": "გამიხარდა შენი ნახვა!",
+    "qr_gree_004": "კეთილი მგზავრობა!",
+    "qr_gree_005": "ნახვამდის!",
+    "qr_gree_006": "ახლა უნდა წავიდე.",
+    "qr_gree_007": "დღეს მოვრჩი."
+  },
+  "ko_kr": {
+    "mp_directions_replies": "방향",
+    "mp_convoy_replies": "콘보이",
+    "mp_social_replies": "사교",
+    "mp_service_replies": "서비스",
+    "mp_reactions_replies": "반응",
+    "mp_compliments_replies": "칭찬",
+    "mp_greetings_replies": "환영 & 환송",
+    "qr_dire_001": "좌회전합니다.",
+    "qr_dire_002": "우회전합니다.",
+    "qr_dire_003": "직진합니다.",
+    "qr_dire_004": "유턴합니다.",
+    "qr_dire_005": "잘못 진입했습니다!",
+    "qr_dire_006": "감속합니다.",
+    "qr_dire_007": "정지합니다.",
+    "qr_conv_001": "먼저 갈게요!",
+    "qr_conv_002": "따라갈게요!",
+    "qr_conv_003": "따라오세요.",
+    "qr_conv_004": "쉬었다 갈게요.",
+    "qr_conv_005": "기다려주세요!",
+    "qr_conv_006": "뒤를 확인해주세요!",
+    "qr_conv_007": "일거리를 찾을게요!",
+    "qr_soci_001": "해보도록 하죠!",
+    "qr_soci_002": "준비됐나요?",
+    "qr_soci_003": "준비됐어요!",
+    "qr_soci_004": "한 번 더 배송할까요?",
+    "qr_soci_005": "단체 사진 찍으실래요?",
+    "qr_soci_006": "비상 정지!",
+    "qr_soci_007": "금방 돌아올게요.",
+    "qr_serv_001": "서비스 센터에 갑니다!",
+    "qr_serv_002": "수리해야 합니다.",
+    "qr_serv_003": "업그레이드하러 갑니다.",
+    "qr_serv_004": "기름이 없습니다.",
+    "qr_serv_005": "충돌했습니다!",
+    "qr_serv_006": "기름 넣으러 가시죠.",
+    "qr_serv_007": "서비스 센터에 가시죠.",
+    "qr_reac_001": "네!",
+    "qr_reac_002": "아니요.",
+    "qr_reac_003": "OK",
+    "qr_reac_004": "문제없습니다.",
+    "qr_reac_005": "물론입니다.",
+    "qr_reac_006": "미안합니다!",
+    "qr_reac_007": "헉!",
+    "qr_comp_001": "고맙습니다!",
+    "qr_comp_002": "굿잡!",
+    "qr_comp_003": "운전 잘하시네요!",
+    "qr_comp_004": "트럭 멋지네요!",
+    "qr_comp_005": "트레일러 멋져요!",
+    "qr_comp_006": "스킨 멋진걸요!",
+    "qr_comp_007": "멋진 액세서리네요!",
+    "qr_gree_001": "안녕하세요!",
+    "qr_gree_002": "환영합니다.",
+    "qr_gree_003": "만나서 반갑습니다!",
+    "qr_gree_004": "즐거운 여행 되세요!",
+    "qr_gree_005": "안녕히 계세요!",
+    "qr_gree_006": "이제 그만 갈게요.",
+    "qr_gree_007": "오늘은 여기까지 할게요."
+  },
+  "lt_lt": {
+    "mp_directions_replies": "Kryptys",
+    "mp_convoy_replies": "Konvojus",
+    "mp_social_replies": "Socializacija",
+    "mp_service_replies": "Servisas",
+    "mp_reactions_replies": "Reakcijos",
+    "mp_compliments_replies": "Komplimentai",
+    "mp_greetings_replies": "Pasisveikinimai ir atsisveikinimai",
+    "qr_dire_001": "Kairėn.",
+    "qr_dire_002": "Dešinėn.",
+    "qr_dire_003": "Tiesiai.",
+    "qr_dire_004": "Apsisuk.",
+    "qr_dire_005": "Ne ten!",
+    "qr_dire_006": "Lėčiau.",
+    "qr_dire_007": "Sustok.",
+    "qr_conv_001": "Leisk mane į priekį!",
+    "qr_conv_002": "Aš iš paskos!",
+    "qr_conv_003": "Paskui mane.",
+    "qr_conv_004": "Sustokime pailsėti.",
+    "qr_conv_005": "Palauk manęs!",
+    "qr_conv_006": "Pažiūrėk už savęs!",
+    "qr_conv_007": "Rasiu užduotį!",
+    "qr_soci_001": "Darom!",
+    "qr_soci_002": "Pasiruošęs?",
+    "qr_soci_003": "Pasiruošęs!",
+    "qr_soci_004": "Dar vieną krovinį?",
+    "qr_soci_005": "Grupinę nuotrauką?",
+    "qr_soci_006": "Reikia skubiai sustoti!",
+    "qr_soci_007": "Tuoj grįšiu.",
+    "qr_serv_001": "Keliauju į servisą!",
+    "qr_serv_002": "Reikia remonto.",
+    "qr_serv_003": "Ketinu pasitobulinti.",
+    "qr_serv_004": "Baigėsi degalai.",
+    "qr_serv_005": "Avarija!",
+    "qr_serv_006": "Sustokime kuro.",
+    "qr_serv_007": "Sustokime servise.",
+    "qr_reac_001": "Taip!",
+    "qr_reac_002": "Ne.",
+    "qr_reac_003": "Gerai.",
+    "qr_reac_004": "Ne bėda.",
+    "qr_reac_005": "Žinoma.",
+    "qr_reac_006": "Atsiprašau!",
+    "qr_reac_007": "Oi!",
+    "qr_comp_001": "Ačiū!",
+    "qr_comp_002": "Puikiai!",
+    "qr_comp_003": "Gerai vairuoji!",
+    "qr_comp_004": "Puikus sunkvežimis!",
+    "qr_comp_005": "Puiki priekaba!",
+    "qr_comp_006": "Gražios spalvos!",
+    "qr_comp_007": "Kieti priedai!",
+    "qr_gree_001": "Sveikas!",
+    "qr_gree_002": "Sveiki atvykę.",
+    "qr_gree_003": "Malonu matyti!",
+    "qr_gree_004": "Geros kelionės!",
+    "qr_gree_005": "Iki!",
+    "qr_gree_006": "Jau eisiu.",
+    "qr_gree_007": "Šiandien baigiu."
+  },
+  "lv_lv": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Konvojs",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reactions",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Greetings & Byes",
+    "qr_dire_001": "Left.",
+    "qr_dire_002": "Right.",
+    "qr_dire_003": "Straight on.",
+    "qr_dire_004": "Turn around.",
+    "qr_dire_005": "Wrong way!",
+    "qr_dire_006": "Slow down.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Let me go first!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Let's take a break.",
+    "qr_conv_005": "Wait for me please!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "I'll find the job!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Ready?",
+    "qr_soci_003": "Ready!",
+    "qr_soci_004": "One more delivery?",
+    "qr_soci_005": "Group photo?",
+    "qr_soci_006": "Emergency stop!",
+    "qr_soci_007": "Be right back.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Repairs needed.",
+    "qr_serv_003": "I'm going to upgrade.",
+    "qr_serv_004": "Out of fuel.",
+    "qr_serv_005": "Crashed!",
+    "qr_serv_006": "Let's stop for fuel.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Yes!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "No problem.",
+    "qr_reac_005": "Sure.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Thanks!",
+    "qr_comp_002": "Good job!",
+    "qr_comp_003": "Good driving!",
+    "qr_comp_004": "Nice truck!",
+    "qr_comp_005": "Nice trailer!",
+    "qr_comp_006": "Nice paint job!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Hi!",
+    "qr_gree_002": "Welcome.",
+    "qr_gree_003": "Good to see you!",
+    "qr_gree_004": "Happy journey!",
+    "qr_gree_005": "See you!",
+    "qr_gree_006": "I'm going to go now.",
+    "qr_gree_007": "I'm done for today."
+  },
+  "mk_mk": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Convoy",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reactions",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Greetings & Byes",
+    "qr_dire_001": "Left.",
+    "qr_dire_002": "Right.",
+    "qr_dire_003": "Straight on.",
+    "qr_dire_004": "Turn around.",
+    "qr_dire_005": "Wrong way!",
+    "qr_dire_006": "Slow down.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Let me go first!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Let's take a break.",
+    "qr_conv_005": "Wait for me please!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "I'll find the job!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Ready?",
+    "qr_soci_003": "Ready!",
+    "qr_soci_004": "One more delivery?",
+    "qr_soci_005": "Group photo?",
+    "qr_soci_006": "Emergency stop!",
+    "qr_soci_007": "Be right back.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Repairs needed.",
+    "qr_serv_003": "I'm going to upgrade.",
+    "qr_serv_004": "Out of fuel.",
+    "qr_serv_005": "Crashed!",
+    "qr_serv_006": "Let's stop for fuel.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Yes!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "No problem.",
+    "qr_reac_005": "Sure.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Thanks!",
+    "qr_comp_002": "Good job!",
+    "qr_comp_003": "Good driving!",
+    "qr_comp_004": "Nice truck!",
+    "qr_comp_005": "Nice trailer!",
+    "qr_comp_006": "Nice paint job!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Hi!",
+    "qr_gree_002": "Welcome.",
+    "qr_gree_003": "Good to see you!",
+    "qr_gree_004": "Happy journey!",
+    "qr_gree_005": "See you!",
+    "qr_gree_006": "I'm going to go now.",
+    "qr_gree_007": "I'm done for today."
+  },
+  "nl_nl": {
+    "mp_directions_replies": "Aanwijzingen",
+    "mp_convoy_replies": "Konvooi",
+    "mp_social_replies": "Sociaal",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reacties",
+    "mp_compliments_replies": "Complimenten",
+    "mp_greetings_replies": "Begroetingen",
+    "qr_dire_001": "Links.",
+    "qr_dire_002": "Rechts.",
+    "qr_dire_003": "Rechtdoor.",
+    "qr_dire_004": "Omkeren.",
+    "qr_dire_005": "Verkeerde richting!",
+    "qr_dire_006": "Rij langzamer.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Laat mij eerst gaan!",
+    "qr_conv_002": "Ik volg!",
+    "qr_conv_003": "Volg mij.",
+    "qr_conv_004": "Laten we even pauzeren.",
+    "qr_conv_005": "Wacht op mij, alsjeblieft!",
+    "qr_conv_006": "Kijk achterom!",
+    "qr_conv_007": "Ik zoek wel een vracht!",
+    "qr_soci_001": "Laten we het doen!",
+    "qr_soci_002": "Klaar om te gaan?",
+    "qr_soci_003": "Ik ben klaar om te gaan!",
+    "qr_soci_004": "Nog één vrachtje?",
+    "qr_soci_005": "Groepsfoto?",
+    "qr_soci_006": "Noodstop!",
+    "qr_soci_007": "Ik ben zo weer terug.",
+    "qr_serv_001": "Ik ga naar de werkplaats!",
+    "qr_serv_002": "Ik heb reparaties nodig.",
+    "qr_serv_003": "Ik ga upgraden.",
+    "qr_serv_004": "Ik heb geen brandstof meer.",
+    "qr_serv_005": "Gecrasht!",
+    "qr_serv_006": "Laten we tanken.",
+    "qr_serv_007": "Laten we stoppen bij de werkplaats.",
+    "qr_reac_001": "Ja!",
+    "qr_reac_002": "Nee.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "Geen probleem.",
+    "qr_reac_005": "Natuurlijk.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Oeps!",
+    "qr_comp_001": "Bedankt!",
+    "qr_comp_002": "Goed gedaan!",
+    "qr_comp_003": "Goed rijgedrag!",
+    "qr_comp_004": "Mooie truck!",
+    "qr_comp_005": "Mooie trailer!",
+    "qr_comp_006": "Mooi spuitwerk!",
+    "qr_comp_007": "Coole accessoires!",
+    "qr_gree_001": "Hoi!",
+    "qr_gree_002": "Welkom.",
+    "qr_gree_003": "Goed je te zien!",
+    "qr_gree_004": "Fijne reis!",
+    "qr_gree_005": "Tot ziens!",
+    "qr_gree_006": "Ik ga nu.",
+    "qr_gree_007": "Ik ben klaar voor vandaag."
+  },
+  "no_no": {
+    "mp_directions_replies": "Retninger",
+    "mp_convoy_replies": "Konvoi",
+    "mp_social_replies": "Sosial",
+    "mp_service_replies": "Verksted",
+    "mp_reactions_replies": "Reaksjoner",
+    "mp_compliments_replies": "Komplimenter",
+    "mp_greetings_replies": "Hilsener & Avskjeder",
+    "qr_dire_001": "Venstre.",
+    "qr_dire_002": "Høyre.",
+    "qr_dire_003": "Rett på.",
+    "qr_dire_004": "Snu rundt.",
+    "qr_dire_005": "Feil vei!",
+    "qr_dire_006": "Senk farten ned.",
+    "qr_dire_007": "Stopp.",
+    "qr_conv_001": "La meg kjøre først!",
+    "qr_conv_002": "Jeg følger etter!",
+    "qr_conv_003": "Følg meg.",
+    "qr_conv_004": "La oss å ta en pause.",
+    "qr_conv_005": "Vennligst vent på meg!",
+    "qr_conv_006": "Se bak deg!",
+    "qr_conv_007": "Jeg finner oppdraget!",
+    "qr_soci_001": "La oss å komme i gang!",
+    "qr_soci_002": "Klar?",
+    "qr_soci_003": "Klar!",
+    "qr_soci_004": "En leveranse til?",
+    "qr_soci_005": "Gruppebilde?",
+    "qr_soci_006": "Nødstopp!",
+    "qr_soci_007": "Er straks tilbake.",
+    "qr_serv_001": "Kjører til serviceverkstedet!",
+    "qr_serv_002": "Reparasjon trengs.",
+    "qr_serv_003": "Jeg oppgraderer.",
+    "qr_serv_004": "Tom for drivstoff.",
+    "qr_serv_005": "Krasjet!",
+    "qr_serv_006": "La oss fylle opp tanken.",
+    "qr_serv_007": "La oss stoppe ved servicverkstedet.",
+    "qr_reac_001": "Ja!",
+    "qr_reac_002": "Nei.",
+    "qr_reac_003": "Ok.",
+    "qr_reac_004": "Ikke noe problem.",
+    "qr_reac_005": "Sikker.",
+    "qr_reac_006": "Unnskyld!",
+    "qr_reac_007": "Obs!",
+    "qr_comp_001": "Takk!",
+    "qr_comp_002": "Godt jobbet!",
+    "qr_comp_003": "God kjøring!",
+    "qr_comp_004": "Fin lastebil!",
+    "qr_comp_005": "Fin henger!",
+    "qr_comp_006": "Fin maling!",
+    "qr_comp_007": "Kule tilbehør!",
+    "qr_gree_001": "Hei!",
+    "qr_gree_002": "Velkommen.",
+    "qr_gree_003": "Godt å se deg!",
+    "qr_gree_004": "God reise!",
+    "qr_gree_005": "Vi ses!",
+    "qr_gree_006": "Jeg er nødt til å gå nå.",
+    "qr_gree_007": "Jeg er ferdig for i dag."
+  },
+  "pl_pl": {
+    "mp_directions_replies": "Kierunki",
+    "mp_convoy_replies": "Konwój",
+    "mp_social_replies": "Towarzyskie",
+    "mp_service_replies": "Serwis",
+    "mp_reactions_replies": "Reakcje",
+    "mp_compliments_replies": "Komplementy",
+    "mp_greetings_replies": "Hejki & Papatki",
+    "qr_dire_001": "W lewo.",
+    "qr_dire_002": "W prawo.",
+    "qr_dire_003": "Prosto.",
+    "qr_dire_004": "Zawróć.",
+    "qr_dire_005": "Pod prąd!",
+    "qr_dire_006": "Zwolnij.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Ja chcę pierwszy!",
+    "qr_conv_002": "Będę za Tobą!",
+    "qr_conv_003": "Jedź za mną.",
+    "qr_conv_004": "Zróbmy przerwę.",
+    "qr_conv_005": "Zaczekaj na mnie, proszę!",
+    "qr_conv_006": "Sprawdź się!",
+    "qr_conv_007": "Znajdę zlecenie!",
+    "qr_soci_001": "Zróbmy to!",
+    "qr_soci_002": "Gotów?",
+    "qr_soci_003": "Gotów!",
+    "qr_soci_004": "Jeszcze jedna traska?",
+    "qr_soci_005": "Grupowa focia?",
+    "qr_soci_006": "Postój awaryjny!",
+    "qr_soci_007": "Zaraz wracam.",
+    "qr_serv_001": "Skoczę do serwisu!",
+    "qr_serv_002": "Potrzebuję naprawy.",
+    "qr_serv_003": "Ulepszę sprzęt.",
+    "qr_serv_004": "Pusty bak.",
+    "qr_serv_005": "Będzie co klepać!",
+    "qr_serv_006": "Zatrzymajmy się po paliwo.",
+    "qr_serv_007": "Zatrzymajmy się w serwisie.",
+    "qr_reac_001": "Tak!",
+    "qr_reac_002": "Nie.",
+    "qr_reac_003": "Okej.",
+    "qr_reac_004": "Nie ma problemu.",
+    "qr_reac_005": "Pewnie.",
+    "qr_reac_006": "Przepraszam!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Dzięki!",
+    "qr_comp_002": "Dobra robota!",
+    "qr_comp_003": "Mistrz kierownicy!",
+    "qr_comp_004": "Niezła ciężarówka!",
+    "qr_comp_005": "Niezła naczepa!",
+    "qr_comp_006": "Niezłe malowanie!",
+    "qr_comp_007": "Fajne akcesoria!",
+    "qr_gree_001": "Cześć!",
+    "qr_gree_002": "Witaj.",
+    "qr_gree_003": "Dobrze Cię widzieć!",
+    "qr_gree_004": "Miłej podróży!",
+    "qr_gree_005": "Bajo!",
+    "qr_gree_006": "Muszę już iść.",
+    "qr_gree_007": "Wystarczy na dziś."
+  },
+  "pl_si": {
+    "mp_directions_replies": "Kierunki",
+    "mp_convoy_replies": "Konwój",
+    "mp_social_replies": "Towarzyskie",
+    "mp_service_replies": "Serwis",
+    "mp_reactions_replies": "Reakcje",
+    "mp_compliments_replies": "Komplementy",
+    "mp_greetings_replies": "Hejki & Papatki",
+    "qr_dire_001": "W lewo.",
+    "qr_dire_002": "W prawo.",
+    "qr_dire_003": "Prosto.",
+    "qr_dire_004": "Zawróć.",
+    "qr_dire_005": "Pod prąd!",
+    "qr_dire_006": "Zwolnij.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Ja chcę pierwszy!",
+    "qr_conv_002": "Będę za Tobą!",
+    "qr_conv_003": "Jedź za mną.",
+    "qr_conv_004": "Zróbmy przerwę.",
+    "qr_conv_005": "Zaczekaj na mnie, proszę!",
+    "qr_conv_006": "Sprawdź się!",
+    "qr_conv_007": "Znajdę zlecenie!",
+    "qr_soci_001": "Zróbmy to!",
+    "qr_soci_002": "Gotów?",
+    "qr_soci_003": "Gotów!",
+    "qr_soci_004": "Jeszcze jedna traska?",
+    "qr_soci_005": "Grupowŏ fotografijŏ?",
+    "qr_soci_006": "Postój awaryjny!",
+    "qr_soci_007": "Zaraz wracam.",
+    "qr_serv_001": "Skoczę do serwisu!",
+    "qr_serv_002": "Potrzebuję naprawy.",
+    "qr_serv_003": "Ulepszę sprzęt.",
+    "qr_serv_004": "Pusty bak.",
+    "qr_serv_005": "Będzie co klepać!",
+    "qr_serv_006": "Zatrzymajmy się po paliwo.",
+    "qr_serv_007": "Zatrzymajmy się w serwisie.",
+    "qr_reac_001": "Tak!",
+    "qr_reac_002": "Nie.",
+    "qr_reac_003": "Okej.",
+    "qr_reac_004": "Nie ma problemu.",
+    "qr_reac_005": "Pewnie.",
+    "qr_reac_006": "Przepraszam!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Dzięki!",
+    "qr_comp_002": "Dobra robota!",
+    "qr_comp_003": "Mistrz kierownicy!",
+    "qr_comp_004": "Niezła ciężarówka!",
+    "qr_comp_005": "Niezła naczepa!",
+    "qr_comp_006": "Niezłe malowanie!",
+    "qr_comp_007": "Fajne akcesoria!",
+    "qr_gree_001": "Cześć!",
+    "qr_gree_002": "Witaj.",
+    "qr_gree_003": "Dobrze Cię widzieć!",
+    "qr_gree_004": "Miłej podróży!",
+    "qr_gree_005": "Bajo!",
+    "qr_gree_006": "Muszę już iść.",
+    "qr_gree_007": "Wystarczy na dziś."
+  },
+  "pt_br": {
+    "mp_directions_replies": "Direções",
+    "mp_convoy_replies": "Comboio",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Oficina",
+    "mp_reactions_replies": "Reações",
+    "mp_compliments_replies": "Elogios",
+    "mp_greetings_replies": "Cumprimentos e despedidas",
+    "qr_dire_001": "Esquerda.",
+    "qr_dire_002": "Direita.",
+    "qr_dire_003": "Segue reto.",
+    "qr_dire_004": "Dê a volta.",
+    "qr_dire_005": "Caminho errado!",
+    "qr_dire_006": "Mais devagar.",
+    "qr_dire_007": "Pare.",
+    "qr_conv_001": "Deixa eu ir na frente!",
+    "qr_conv_002": "Tô te seguindo!",
+    "qr_conv_003": "Siga-me.",
+    "qr_conv_004": "Vamos fazer uma pausa.",
+    "qr_conv_005": "Me espera por favor!",
+    "qr_conv_006": "Cuidado aí atrás!",
+    "qr_conv_007": "Eu vou achar o trabalho!",
+    "qr_soci_001": "Vambora!",
+    "qr_soci_002": "Pronto?",
+    "qr_soci_003": "Pronto!",
+    "qr_soci_004": "Mais uma entrega?",
+    "qr_soci_005": "Foto em grupo?",
+    "qr_soci_006": "Parada de emergência!",
+    "qr_soci_007": "Já volto.",
+    "qr_serv_001": "Vou pra oficina!",
+    "qr_serv_002": "Preciso de reparos.",
+    "qr_serv_003": "Vou fazer uma melhoria.",
+    "qr_serv_004": "Sem combustível.",
+    "qr_serv_005": "Bati!",
+    "qr_serv_006": "Vamos parar pra abastecer.",
+    "qr_serv_007": "Vamos parar na oficina.",
+    "qr_reac_001": "Sim!",
+    "qr_reac_002": "Não.",
+    "qr_reac_003": "Ok.",
+    "qr_reac_004": "Sem problema.",
+    "qr_reac_005": "Com certeza.",
+    "qr_reac_006": "Foi mal!",
+    "qr_reac_007": "Ops!",
+    "qr_comp_001": "Valeu!",
+    "qr_comp_002": "Bom trabalho!",
+    "qr_comp_003": "Dirige bem!",
+    "qr_comp_004": "Belo caminhão!",
+    "qr_comp_005": "Belo reboque!",
+    "qr_comp_006": "Bela pintura!",
+    "qr_comp_007": "Belos acessórios!",
+    "qr_gree_001": "Oi!",
+    "qr_gree_002": "Bem-vindo(a).",
+    "qr_gree_003": "Bom te ver!",
+    "qr_gree_004": "Boa viagem!",
+    "qr_gree_005": "Até mais!",
+    "qr_gree_006": "Tô indo agora.",
+    "qr_gree_007": "Chega por hoje."
+  },
+  "pt_pt": {
+    "mp_directions_replies": "Direcções",
+    "mp_convoy_replies": "Comboio",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Serviço",
+    "mp_reactions_replies": "Reacções",
+    "mp_compliments_replies": "Elogios",
+    "mp_greetings_replies": "Cumprimentos & Despedidas",
+    "qr_dire_001": "Esquerda.",
+    "qr_dire_002": "Direita.",
+    "qr_dire_003": "Sempre em frente.",
+    "qr_dire_004": "Faz inversão de marcha.",
+    "qr_dire_005": "Direcção errada!",
+    "qr_dire_006": "Abranda.",
+    "qr_dire_007": "Pára.",
+    "qr_conv_001": "Deixa-me ir primeiro!",
+    "qr_conv_002": "Estou a seguir-te!",
+    "qr_conv_003": "Segue-me.",
+    "qr_conv_004": "Vamos fazer uma pausa.",
+    "qr_conv_005": "Espera por mim, por favor!",
+    "qr_conv_006": "Olha para trás!",
+    "qr_conv_007": "Eu encontro o trabalho!",
+    "qr_soci_001": "Vamos a isto!",
+    "qr_soci_002": "Preparado?",
+    "qr_soci_003": "Preparado!",
+    "qr_soci_004": "Mais uma entrega?",
+    "qr_soci_005": "Foto de grupo?",
+    "qr_soci_006": "Paragem de emergência!",
+    "qr_soci_007": "Volto já.",
+    "qr_serv_001": "Vou à oficina!",
+    "qr_serv_002": "Preciso de reparações.",
+    "qr_serv_003": "Vou actualizar.",
+    "qr_serv_004": "Sem combustível.",
+    "qr_serv_005": "Acidente!",
+    "qr_serv_006": "Vamos parar para abastecer.",
+    "qr_serv_007": "Vamos parar na oficina.",
+    "qr_reac_001": "Sim!",
+    "qr_reac_002": "Não.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "Sem problema.",
+    "qr_reac_005": "Com certeza.",
+    "qr_reac_006": "Desculpa!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Obrigado!",
+    "qr_comp_002": "Bom trabalho!",
+    "qr_comp_003": "Boa condução!",
+    "qr_comp_004": "Belo camião!",
+    "qr_comp_005": "Belo reboque!",
+    "qr_comp_006": "Bela pintura!",
+    "qr_comp_007": "Belos acessórios!",
+    "qr_gree_001": "Olá!",
+    "qr_gree_002": "Bem-vindo.",
+    "qr_gree_003": "É bom ver-te!",
+    "qr_gree_004": "Boa viagem!",
+    "qr_gree_005": "Adeus!",
+    "qr_gree_006": "Vou-me embora.",
+    "qr_gree_007": "Chega por hoje."
+  },
+  "ro_ro": {
+    "mp_directions_replies": "Direcţii",
+    "mp_convoy_replies": "Convoi",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reacţii",
+    "mp_compliments_replies": "Complimente",
+    "mp_greetings_replies": "Salutări & La Revedere",
+    "qr_dire_001": "Stânga.",
+    "qr_dire_002": "Dreapta.",
+    "qr_dire_003": "Drept înainte.",
+    "qr_dire_004": "Întoarcere.",
+    "qr_dire_005": "Drum greşit!",
+    "qr_dire_006": "Încetiniţi.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Lăsaţi-mă pe mine primul!",
+    "qr_conv_002": "Vă urmăresc!",
+    "qr_conv_003": "Urmaţi-mă.",
+    "qr_conv_004": "Să luăm o pauză.",
+    "qr_conv_005": "Aşteaptă-mă te rog!",
+    "qr_conv_006": "Uită-te în spate!",
+    "qr_conv_007": "Voi căuta livrarea!",
+    "qr_soci_001": "Să facem asta!",
+    "qr_soci_002": "Gata?",
+    "qr_soci_003": "Gata!",
+    "qr_soci_004": "Încă o livrare?",
+    "qr_soci_005": "Poză de grup?",
+    "qr_soci_006": "Oprire de urgenţă!",
+    "qr_soci_007": "Revin imediat.",
+    "qr_serv_001": "Spre service!",
+    "qr_serv_002": "Reparaţii necesare.",
+    "qr_serv_003": "Voi face o modificare.",
+    "qr_serv_004": "Fără combustibil.",
+    "qr_serv_005": "Accident!",
+    "qr_serv_006": "Să ne oprim pentru combustibil.",
+    "qr_serv_007": "Să ne oprim la service.",
+    "qr_reac_001": "Da!",
+    "qr_reac_002": "Nu.",
+    "qr_reac_003": "OK.",
+    "qr_reac_004": "Nicio problemă.",
+    "qr_reac_005": "Desigur.",
+    "qr_reac_006": "Scuze!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Mersi!",
+    "qr_comp_002": "Bravo!",
+    "qr_comp_003": "Ce condus bun!",
+    "qr_comp_004": "Ce camion interesant!",
+    "qr_comp_005": "Ce remorcă interesantă!",
+    "qr_comp_006": "Ce schemă de vopsire!",
+    "qr_comp_007": "Ce accesorii interesante!",
+    "qr_gree_001": "Bună!",
+    "qr_gree_002": "Bine aţi venit.",
+    "qr_gree_003": "Mă bucur să te văd!",
+    "qr_gree_004": "Călătorie plăcută!",
+    "qr_gree_005": "Să ne revedem!",
+    "qr_gree_006": "Voi pleca în curând.",
+    "qr_gree_007": "Am terminat pentru azi."
+  },
+  "ru_ru": {
+    "mp_directions_replies": "Направления",
+    "mp_convoy_replies": "Конвой",
+    "mp_social_replies": "Социальные",
+    "mp_service_replies": "Сервисные",
+    "mp_reactions_replies": "Реакции",
+    "mp_compliments_replies": "Комплименты",
+    "mp_greetings_replies": "Приветствия и прощания",
+    "qr_dire_001": "Налево.",
+    "qr_dire_002": "Направо.",
+    "qr_dire_003": "Прямо.",
+    "qr_dire_004": "Разворот.",
+    "qr_dire_005": "Не туда!",
+    "qr_dire_006": "Помедленнее.",
+    "qr_dire_007": "Стоп.",
+    "qr_conv_001": "Пропустите меня вперёд!",
+    "qr_conv_002": "Следую!",
+    "qr_conv_003": "За мной.",
+    "qr_conv_004": "Давайте сделаем перерыв.",
+    "qr_conv_005": "Подождите меня!",
+    "qr_conv_006": "Осторожно, сзади!",
+    "qr_conv_007": "Я выберу груз!",
+    "qr_soci_001": "За дело!",
+    "qr_soci_002": "Готовы?",
+    "qr_soci_003": "Готов!",
+    "qr_soci_004": "Ещё рейс?",
+    "qr_soci_005": "Общее фото?",
+    "qr_soci_006": "Экстренная остановка!",
+    "qr_soci_007": "Скоро вернусь.",
+    "qr_serv_001": "Еду в сервис!",
+    "qr_serv_002": "Нужно в ремонт.",
+    "qr_serv_003": "Собираюсь обновиться.",
+    "qr_serv_004": "Нет топлива.",
+    "qr_serv_005": "Авария!",
+    "qr_serv_006": "Надо заехать на заправку.",
+    "qr_serv_007": "Надо остановиться в сервисе.",
+    "qr_reac_001": "Да!",
+    "qr_reac_002": "Нет.",
+    "qr_reac_003": "Окей.",
+    "qr_reac_004": "Не проблема.",
+    "qr_reac_005": "Конечно.",
+    "qr_reac_006": "Простите!",
+    "qr_reac_007": "Упс!",
+    "qr_comp_001": "Спасибо!",
+    "qr_comp_002": "Отличная работа!",
+    "qr_comp_003": "Хорошее вождение!",
+    "qr_comp_004": "Классный грузовик!",
+    "qr_comp_005": "Классный прицеп!",
+    "qr_comp_006": "Классная окраска!",
+    "qr_comp_007": "Классный тюнинг!",
+    "qr_gree_001": "Привет!",
+    "qr_gree_002": "Добро пожаловать.",
+    "qr_gree_003": "Рад встрече!",
+    "qr_gree_004": "Счастливого пути!",
+    "qr_gree_005": "Увидимся!",
+    "qr_gree_006": "Мне пора уходить.",
+    "qr_gree_007": "На сегодня хватит."
+  },
+  "sk_sk": {
+    "mp_directions_replies": "Inštrukcie",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Spoločenské",
+    "mp_service_replies": "Služby",
+    "mp_reactions_replies": "Reakcie",
+    "mp_compliments_replies": "Komplimenty",
+    "mp_greetings_replies": "Pozdravy",
+    "qr_dire_001": "Vľavo.",
+    "qr_dire_002": "Vpravo.",
+    "qr_dire_003": "Rovno.",
+    "qr_dire_004": "Otočte sa.",
+    "qr_dire_005": "Zlý smer!",
+    "qr_dire_006": "Spomaľte.",
+    "qr_dire_007": "Zastavte.",
+    "qr_conv_001": "Nechaj ma ísť ako prvého!",
+    "qr_conv_002": "Som za tebou!",
+    "qr_conv_003": "Nasledujte ma.",
+    "qr_conv_004": "Dajme si prestávku.",
+    "qr_conv_005": "Počkajte na mňa prosím!",
+    "qr_conv_006": "Pozrite sa za seba!",
+    "qr_conv_007": "Ja nájdem zákazku!",
+    "qr_soci_001": "Poďme na to!",
+    "qr_soci_002": "Pripravený?",
+    "qr_soci_003": "Pripravený!",
+    "qr_soci_004": "Ešte jednu zákazku?",
+    "qr_soci_005": "Spoločná fotka?",
+    "qr_soci_006": "Núdzové zastavenie!",
+    "qr_soci_007": "Hneď som späť.",
+    "qr_serv_001": "Idem do servisu!",
+    "qr_serv_002": "Potrebujem opraviť.",
+    "qr_serv_003": "Idem si vylepšiť výbavu.",
+    "qr_serv_004": "Došlo palivo.",
+    "qr_serv_005": "Nabúral som!",
+    "qr_serv_006": "Zastavme pre palivo.",
+    "qr_serv_007": "Zastavme v servise.",
+    "qr_reac_001": "Áno!",
+    "qr_reac_002": "Nie.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "Žiadny problém.",
+    "qr_reac_005": "Samozrejme.",
+    "qr_reac_006": "Prepáč!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Vďaka!",
+    "qr_comp_002": "Dobrá práca!",
+    "qr_comp_003": "Dobrá jazda!",
+    "qr_comp_004": "Pekný ťahač!",
+    "qr_comp_005": "Pekný náves!",
+    "qr_comp_006": "Pekné lakovanie!",
+    "qr_comp_007": "Pekné doplnky!",
+    "qr_gree_001": "Ahoj!",
+    "qr_gree_002": "Vitaj.",
+    "qr_gree_003": "Rád ťa vidím!",
+    "qr_gree_004": "Šťastnú cestu!",
+    "qr_gree_005": "Maj sa!",
+    "qr_gree_006": "Už musím ísť.",
+    "qr_gree_007": "Na dnes končím."
+  },
+  "sl_sl": {
+    "mp_directions_replies": "Smernice",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Družbeno",
+    "mp_service_replies": "Servis",
+    "mp_reactions_replies": "Reakcije",
+    "mp_compliments_replies": "Pohvale",
+    "mp_greetings_replies": "Pozdravi",
+    "qr_dire_001": "Levo.",
+    "qr_dire_002": "Desno.",
+    "qr_dire_003": "Naravnost.",
+    "qr_dire_004": "Obrni.",
+    "qr_dire_005": "Napačna smer!",
+    "qr_dire_006": "Počasneje.",
+    "qr_dire_007": "Ustavi.",
+    "qr_conv_001": "Spustite me naprej!",
+    "qr_conv_002": "Že prihajam!",
+    "qr_conv_003": "Sledi mi.",
+    "qr_conv_004": "Čas je za počitek.",
+    "qr_conv_005": "Prosim, počakajte me!",
+    "qr_conv_006": "Pazi zadaj!",
+    "qr_conv_007": "Jaz bom našel dostavo!",
+    "qr_soci_001": "Pa dajmo!",
+    "qr_soci_002": "Pripravljeni?",
+    "qr_soci_003": "Pripravljeni!",
+    "qr_soci_004": "Še ena dostava?",
+    "qr_soci_005": "Skupna fotografija?",
+    "qr_soci_006": "Nujno ustavljanje!",
+    "qr_soci_007": "Pridem takoj.",
+    "qr_serv_001": "Peljem na servis!",
+    "qr_serv_002": "Potrebujem popravilo.",
+    "qr_serv_003": "Gremo po nadgradnjo.",
+    "qr_serv_004": "Zmanjkalo mi je goriva.",
+    "qr_serv_005": "Pripetila se mi je nesreča!",
+    "qr_serv_006": "Gremo napolnit rezervoarje.",
+    "qr_serv_007": "Gremo na servis.",
+    "qr_reac_001": "Ja!",
+    "qr_reac_002": "Ne.",
+    "qr_reac_003": "Prav.",
+    "qr_reac_004": "Ni problema.",
+    "qr_reac_005": "Seveda.",
+    "qr_reac_006": "Oprosti!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Hvala!",
+    "qr_comp_002": "Dobro opravljeno!",
+    "qr_comp_003": "Dobra vožnja!",
+    "qr_comp_004": "Lep tovornjak!",
+    "qr_comp_005": "Lepa prikolica!",
+    "qr_comp_006": "Lepa poslikava!",
+    "qr_comp_007": "Super dodatki!",
+    "qr_gree_001": "Pozdravljeni!",
+    "qr_gree_002": "Dobrodošli.",
+    "qr_gree_003": "Lepo te je videti!",
+    "qr_gree_004": "Srečno vožnjo!",
+    "qr_gree_005": "Se vidimo!",
+    "qr_gree_006": "Jaz bom šel sedaj.",
+    "qr_gree_007": "Jaz sem za danes zaključil."
+  },
+  "sr_sp": {
+    "mp_directions_replies": "Uputstva",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Društveni",
+    "mp_service_replies": "Servis",
+    "mp_reactions_replies": "Reakcije",
+    "mp_compliments_replies": "Komplimenti",
+    "mp_greetings_replies": "Pozdrav i ćao",
+    "qr_dire_001": "Levo.",
+    "qr_dire_002": "Desno.",
+    "qr_dire_003": "Pravo.",
+    "qr_dire_004": "Okreni se.",
+    "qr_dire_005": "Pogrešan način!",
+    "qr_dire_006": "Uspori.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Pusti mene prvog!",
+    "qr_conv_002": "Ja te pratim!",
+    "qr_conv_003": "Prati me.",
+    "qr_conv_004": "Hajde da napravimo pauzu.",
+    "qr_conv_005": "Čekaj me molim te!",
+    "qr_conv_006": "Proveri iza!",
+    "qr_conv_007": "Naći ću posao!",
+    "qr_soci_001": "Hajde da uradimo ovo!",
+    "qr_soci_002": "Spreman?",
+    "qr_soci_003": "Spreman!",
+    "qr_soci_004": "Još jedna isporuka?",
+    "qr_soci_005": "Grupna slika?",
+    "qr_soci_006": "Hitno zaustavljanje!",
+    "qr_soci_007": "Odmah se vraćam.",
+    "qr_serv_001": "Odlazak u servis!",
+    "qr_serv_002": "Potrebne su popravke.",
+    "qr_serv_003": "Idem da nadogradim.",
+    "qr_serv_004": "Bez goriva sam.",
+    "qr_serv_005": "Udarem!",
+    "qr_serv_006": "Stanimo zbog goriva.",
+    "qr_serv_007": "Zaustavimo se u servisu.",
+    "qr_reac_001": "Da!",
+    "qr_reac_002": "Ne.",
+    "qr_reac_003": "U redu.",
+    "qr_reac_004": "Nema problema.",
+    "qr_reac_005": "Naravno.",
+    "qr_reac_006": "Izvini!",
+    "qr_reac_007": "Ups!",
+    "qr_comp_001": "Hvala!",
+    "qr_comp_002": "Dobar posao!",
+    "qr_comp_003": "Dobra vožnja!",
+    "qr_comp_004": "Lep kamion!",
+    "qr_comp_005": "Lepa prikolica!",
+    "qr_comp_006": "Lepo farbanje!",
+    "qr_comp_007": "Super dodaci!",
+    "qr_gree_001": "Ćao!",
+    "qr_gree_002": "Dobrodošli.",
+    "qr_gree_003": "Drago mi da te vidim!",
+    "qr_gree_004": "Sretan put!",
+    "qr_gree_005": "Vidimo se!",
+    "qr_gree_006": "Ja idem sada.",
+    "qr_gree_007": "Za danas sam gotov."
+  },
+  "sr_sr": {
+    "mp_directions_replies": "Упутства",
+    "mp_convoy_replies": "Конвој",
+    "mp_social_replies": "Друштвени",
+    "mp_service_replies": "Сервис",
+    "mp_reactions_replies": "Реакције",
+    "mp_compliments_replies": "Комплименти",
+    "mp_greetings_replies": "Поздрав и ћао",
+    "qr_dire_001": "Лево.",
+    "qr_dire_002": "Десно.",
+    "qr_dire_003": "Право.",
+    "qr_dire_004": "Окрени се.",
+    "qr_dire_005": "Погрешан начин!",
+    "qr_dire_006": "Успори.",
+    "qr_dire_007": "Стоп.",
+    "qr_conv_001": "Пусти мене првог!",
+    "qr_conv_002": "Ја те пратим!",
+    "qr_conv_003": "Прати ме.",
+    "qr_conv_004": "Хајде да направимо паузу.",
+    "qr_conv_005": "Чекај ме молим те!",
+    "qr_conv_006": "Провери иза!",
+    "qr_conv_007": "Наћи ћу посао!",
+    "qr_soci_001": "Хајде да урадимо ово!",
+    "qr_soci_002": "Спреман?",
+    "qr_soci_003": "Спреман!",
+    "qr_soci_004": "Још једна испорука?",
+    "qr_soci_005": "Групна слика?",
+    "qr_soci_006": "Хитно заустављање!",
+    "qr_soci_007": "Одмах се враћам.",
+    "qr_serv_001": "Одлазак у сервис!",
+    "qr_serv_002": "Потребне су поправке.",
+    "qr_serv_003": "Идем да надоградим.",
+    "qr_serv_004": "Без горива сам.",
+    "qr_serv_005": "Ударен!",
+    "qr_serv_006": "Станимо због горива.",
+    "qr_serv_007": "Зауставимо се у сервису.",
+    "qr_reac_001": "Да!",
+    "qr_reac_002": "Не.",
+    "qr_reac_003": "У реду.",
+    "qr_reac_004": "Нема проблема.",
+    "qr_reac_005": "Наравно.",
+    "qr_reac_006": "Извини!",
+    "qr_reac_007": "Упс!",
+    "qr_comp_001": "Хвала!",
+    "qr_comp_002": "Добар посао!",
+    "qr_comp_003": "Добра вожња!",
+    "qr_comp_004": "Леп камион!",
+    "qr_comp_005": "Лепа приколица!",
+    "qr_comp_006": "Лепо фарбање!",
+    "qr_comp_007": "Супер додаци!",
+    "qr_gree_001": "Ћао!",
+    "qr_gree_002": "Добродошли.",
+    "qr_gree_003": "Драго ми да те видим!",
+    "qr_gree_004": "Сретан пут!",
+    "qr_gree_005": "Видимо се!",
+    "qr_gree_006": "Ја идем сада.",
+    "qr_gree_007": "За данас сам готов."
+  },
+  "sv_se": {
+    "mp_directions_replies": "Directions",
+    "mp_convoy_replies": "Konvoj",
+    "mp_social_replies": "Social",
+    "mp_service_replies": "Service",
+    "mp_reactions_replies": "Reaktioner",
+    "mp_compliments_replies": "Compliments",
+    "mp_greetings_replies": "Greetings & Byes",
+    "qr_dire_001": "Left.",
+    "qr_dire_002": "Right.",
+    "qr_dire_003": "Straight on.",
+    "qr_dire_004": "Turn around.",
+    "qr_dire_005": "Wrong way!",
+    "qr_dire_006": "Slow down.",
+    "qr_dire_007": "Stop.",
+    "qr_conv_001": "Let me go first!",
+    "qr_conv_002": "I'm following!",
+    "qr_conv_003": "Follow me.",
+    "qr_conv_004": "Let's take a break.",
+    "qr_conv_005": "Wait for me please!",
+    "qr_conv_006": "Check behind!",
+    "qr_conv_007": "I'll find the job!",
+    "qr_soci_001": "Let's do this!",
+    "qr_soci_002": "Ready?",
+    "qr_soci_003": "Ready!",
+    "qr_soci_004": "One more delivery?",
+    "qr_soci_005": "Group photo?",
+    "qr_soci_006": "Emergency stop!",
+    "qr_soci_007": "Be right back.",
+    "qr_serv_001": "Going to service!",
+    "qr_serv_002": "Repairs needed.",
+    "qr_serv_003": "I'm going to upgrade.",
+    "qr_serv_004": "Slut på bränsle.",
+    "qr_serv_005": "Crashed!",
+    "qr_serv_006": "Let's stop for fuel.",
+    "qr_serv_007": "Let's stop at the service.",
+    "qr_reac_001": "Yes!",
+    "qr_reac_002": "No.",
+    "qr_reac_003": "Okay.",
+    "qr_reac_004": "No problem.",
+    "qr_reac_005": "Sure.",
+    "qr_reac_006": "Sorry!",
+    "qr_reac_007": "Oops!",
+    "qr_comp_001": "Thanks!",
+    "qr_comp_002": "Good job!",
+    "qr_comp_003": "Good driving!",
+    "qr_comp_004": "Nice truck!",
+    "qr_comp_005": "Nice trailer!",
+    "qr_comp_006": "Nice paint job!",
+    "qr_comp_007": "Cool accessories!",
+    "qr_gree_001": "Hi!",
+    "qr_gree_002": "Välkommen.",
+    "qr_gree_003": "Glad att se dig!",
+    "qr_gree_004": "Säker resa!",
+    "qr_gree_005": "Syns senare!",
+    "qr_gree_006": "Jag går nu.",
+    "qr_gree_007": "Jag är klar för idag."
+  },
+  "tr_tr": {
+    "mp_directions_replies": "Yol Tarifi",
+    "mp_convoy_replies": "Konvoy",
+    "mp_social_replies": "Sosyal",
+    "mp_service_replies": "Servis",
+    "mp_reactions_replies": "Tepkiler",
+    "mp_compliments_replies": "İltifatlar",
+    "mp_greetings_replies": "Selamlama ve Vedalaşma",
+    "qr_dire_001": "Sol.",
+    "qr_dire_002": "Sağ.",
+    "qr_dire_003": "Dümdüz.",
+    "qr_dire_004": "Geri dön.",
+    "qr_dire_005": "Ters istikamet!",
+    "qr_dire_006": "Yavaşla.",
+    "qr_dire_007": "Dur.",
+    "qr_conv_001": "Ben önden gideyim!",
+    "qr_conv_002": "Takip ediyorum!",
+    "qr_conv_003": "Beni takip et.",
+    "qr_conv_004": "Bir mola verelim.",
+    "qr_conv_005": "Beni bekleyin lütfen!",
+    "qr_conv_006": "Arkana bak!",
+    "qr_conv_007": "İşi ben bulurum!",
+    "qr_soci_001": "Hadi başlayalım!",
+    "qr_soci_002": "Hazır mıyız?",
+    "qr_soci_003": "Hazırız!",
+    "qr_soci_004": "Bir teslimat daha?",
+    "qr_soci_005": "Grup fotoğrafı çekelim mi?",
+    "qr_soci_006": "Acil Mola!",
+    "qr_soci_007": "Hemen döneceğim.",
+    "qr_serv_001": "Servise gidiyorum!",
+    "qr_serv_002": "Tamirat gerek.",
+    "qr_serv_003": "Parça yükselteceğim.",
+    "qr_serv_004": "Mazot bitti.",
+    "qr_serv_005": "Kaza yaptım!",
+    "qr_serv_006": "Mazota duralım.",
+    "qr_serv_007": "Servise uğrayalım.",
+    "qr_reac_001": "Evet!",
+    "qr_reac_002": "Hayır.",
+    "qr_reac_003": "Tamam.",
+    "qr_reac_004": "Önemli değil.",
+    "qr_reac_005": "Tabii ki.",
+    "qr_reac_006": "Affedersin!",
+    "qr_reac_007": "Aman!",
+    "qr_comp_001": "Eyvallah!",
+    "qr_comp_002": "Helal!",
+    "qr_comp_003": "Usta şoförlük!",
+    "qr_comp_004": "Güzel çekici!",
+    "qr_comp_005": "Güzel dorse!",
+    "qr_comp_006": "Güzel boya!",
+    "qr_comp_007": "Güzel ekipman!",
+    "qr_gree_001": "Selam!",
+    "qr_gree_002": "Hoş geldin.",
+    "qr_gree_003": "Seni gördüğüme sevindim!",
+    "qr_gree_004": "Hayırlı yolculuklar!",
+    "qr_gree_005": "Görüşürüz!",
+    "qr_gree_006": "Şimdi gidiyorum.",
+    "qr_gree_007": "Bugünlük benden bu kadar."
+  },
+  "uk_uk": {
+    "mp_directions_replies": "Навігація",
+    "mp_convoy_replies": "Конвой",
+    "mp_social_replies": "Соціальні",
+    "mp_service_replies": "Сервіси",
+    "mp_reactions_replies": "Реакції",
+    "mp_compliments_replies": "Компліменти",
+    "mp_greetings_replies": "Привітання та прощання",
+    "qr_dire_001": "Вліво.",
+    "qr_dire_002": "Вправо.",
+    "qr_dire_003": "Прямо.",
+    "qr_dire_004": "Розверніться.",
+    "qr_dire_005": "Не туди!",
+    "qr_dire_006": "Повільніше.",
+    "qr_dire_007": "Зупиніться.",
+    "qr_conv_001": "Дайте дорогу!",
+    "qr_conv_002": "Їду за вами!",
+    "qr_conv_003": "Слідуйте за мною.",
+    "qr_conv_004": "Зробімо перерву.",
+    "qr_conv_005": "Зачекайте на мене!",
+    "qr_conv_006": "Погляньте назад!",
+    "qr_conv_007": "Я знайду роботу!",
+    "qr_soci_001": "Поїхали!",
+    "qr_soci_002": "Готові?",
+    "qr_soci_003": "Готовий!",
+    "qr_soci_004": "Ще одну доставку?",
+    "qr_soci_005": "Груповий знімок?",
+    "qr_soci_006": "Аварійна зупинка!",
+    "qr_soci_007": "Зараз повернуся.",
+    "qr_serv_001": "Їду на сервіс!",
+    "qr_serv_002": "Потрібен ремонт.",
+    "qr_serv_003": "Прикуплю обновок.",
+    "qr_serv_004": "Закінчилась солярка.",
+    "qr_serv_005": "ДеТеПе!",
+    "qr_serv_006": "Зупинімося на заправці.",
+    "qr_serv_007": "Зупинімося на сервісі.",
+    "qr_reac_001": "Так!",
+    "qr_reac_002": "Ні.",
+    "qr_reac_003": "Гаразд.",
+    "qr_reac_004": "Без проблем.",
+    "qr_reac_005": "Звичайно.",
+    "qr_reac_006": "Пробачте!",
+    "qr_reac_007": "Ой!",
+    "qr_comp_001": "Дякую!",
+    "qr_comp_002": "Хороша робота!",
+    "qr_comp_003": "Гарне водіння!",
+    "qr_comp_004": "Гарна вантажівка!",
+    "qr_comp_005": "Гарний причіп!",
+    "qr_comp_006": "Гарні фарби!",
+    "qr_comp_007": "Класні аксесуари!",
+    "qr_gree_001": "Привіт!",
+    "qr_gree_002": "Ласкаво просимо.",
+    "qr_gree_003": "Раді вас бачити!",
+    "qr_gree_004": "Щасливої дороги!",
+    "qr_gree_005": "До зустрічі!",
+    "qr_gree_006": "Буду йти.",
+    "qr_gree_007": "У мене все на сьогодні."
+  },
+  "vi_vn": {
+    "mp_directions_replies": "Hướng",
+    "mp_convoy_replies": "Đoàn xe",
+    "mp_social_replies": "Xã hội",
+    "mp_service_replies": "Dịch vụ",
+    "mp_reactions_replies": "Tương tác",
+    "mp_compliments_replies": "Lời khen",
+    "mp_greetings_replies": "Lời chào & Tạm biệt",
+    "qr_dire_001": "Trái.",
+    "qr_dire_002": "Phải.",
+    "qr_dire_003": "Thẳng.",
+    "qr_dire_004": "Quay đầu.",
+    "qr_dire_005": "Nhầm đường!",
+    "qr_dire_006": "Chậm lại.",
+    "qr_dire_007": "Dừng.",
+    "qr_conv_001": "Để tôi đi trước!",
+    "qr_conv_002": "Tôi đang theo!",
+    "qr_conv_003": "Theo tôi.",
+    "qr_conv_004": "Hãy nghỉ ngơi nào.",
+    "qr_conv_005": "Vui lòng đợi tôi!",
+    "qr_conv_006": "Kiểm tra phía sau!",
+    "qr_conv_007": "Tôi sẽ tìm việc!",
+    "qr_soci_001": "Hãy làm thôi!",
+    "qr_soci_002": "Sẵn sàng chưa?",
+    "qr_soci_003": "Sẵn sàng!",
+    "qr_soci_004": "Thêm chuyến hàng nữa?",
+    "qr_soci_005": "Chụp hình nhóm?",
+    "qr_soci_006": "Dừng khẩn cấp!",
+    "qr_soci_007": "Tôi quay lại ngay.",
+    "qr_serv_001": "Đang đi dịch vụ!",
+    "qr_serv_002": "Cần sửa chữa.",
+    "qr_serv_003": "Tôi sẽ nâng cấp.",
+    "qr_serv_004": "Hết xăng.",
+    "qr_serv_005": "Đã va chạm!",
+    "qr_serv_006": "Hãy dừng để đổ nhiên liệu.",
+    "qr_serv_007": "Hãy dừng tại trạm dịch vụ.",
+    "qr_reac_001": "Đồng ý!",
+    "qr_reac_002": "Không.",
+    "qr_reac_003": "Đồng ý.",
+    "qr_reac_004": "Không vấn đề gì.",
+    "qr_reac_005": "Chắc chắn.",
+    "qr_reac_006": "Xin lỗi!",
+    "qr_reac_007": "Ôi!",
+    "qr_comp_001": "Cảm ơn!",
+    "qr_comp_002": "Làm tốt lắm!",
+    "qr_comp_003": "Lái tốt lắm!",
+    "qr_comp_004": "Xe đẹp!",
+    "qr_comp_005": "Rơ-moóc đẹp!",
+    "qr_comp_006": "Màu sơn đẹp lắm!",
+    "qr_comp_007": "Phụ kiện ngầu lắm!",
+    "qr_gree_001": "Chào!",
+    "qr_gree_002": "Chào mừng.",
+    "qr_gree_003": "Rất vui khi gặp bạn!",
+    "qr_gree_004": "Hành trình vui vẻ!",
+    "qr_gree_005": "Gặp lại bạn!",
+    "qr_gree_006": "Tôi sắp đi bây giờ.",
+    "qr_gree_007": "Tôi hết ngày rồi."
+  },
+  "zh_cn": {
+    "mp_directions_replies": "方向指示",
+    "mp_convoy_replies": "联运",
+    "mp_social_replies": "社交",
+    "mp_service_replies": "服务",
+    "mp_reactions_replies": "反应",
+    "mp_compliments_replies": "表扬",
+    "mp_greetings_replies": "问候和告别",
+    "qr_dire_001": "左转。",
+    "qr_dire_002": "右转。",
+    "qr_dire_003": "直行。",
+    "qr_dire_004": "调头。",
+    "qr_dire_005": "走错路了！",
+    "qr_dire_006": "减速。",
+    "qr_dire_007": "停车。",
+    "qr_conv_001": "让我先走！",
+    "qr_conv_002": "我跟着！",
+    "qr_conv_003": "跟着我！",
+    "qr_conv_004": "我们休息一下吧。",
+    "qr_conv_005": "请等等我！",
+    "qr_conv_006": "注意后方！",
+    "qr_conv_007": "我去找任务！",
+    "qr_soci_001": "我们开工吧！",
+    "qr_soci_002": "准备好了吗？",
+    "qr_soci_003": "准备好了！",
+    "qr_soci_004": "要再运输一次吗？",
+    "qr_soci_005": "合影吗？",
+    "qr_soci_006": "紧急停车！",
+    "qr_soci_007": "我马上回来。",
+    "qr_serv_001": "去服务站！",
+    "qr_serv_002": "需要维修。",
+    "qr_serv_003": "我去升级我的车。",
+    "qr_serv_004": "没油了。",
+    "qr_serv_005": "撞了车!",
+    "qr_serv_006": "我们停下加油吧。",
+    "qr_serv_007": "我们在服务站停下吧。",
+    "qr_reac_001": "好！",
+    "qr_reac_002": "不。",
+    "qr_reac_003": "可以。",
+    "qr_reac_004": "没问题。",
+    "qr_reac_005": "好的。",
+    "qr_reac_006": "抱歉！",
+    "qr_reac_007": "哎呀！",
+    "qr_comp_001": "谢谢！",
+    "qr_comp_002": "干得好！",
+    "qr_comp_003": "开得好！",
+    "qr_comp_004": "卡车不错！",
+    "qr_comp_005": "挂车不错！",
+    "qr_comp_006": "涂装不错！",
+    "qr_comp_007": "配件很酷！",
+    "qr_gree_001": "嗨！",
+    "qr_gree_002": "欢迎",
+    "qr_gree_003": "很高兴见到你！",
+    "qr_gree_004": "旅途愉快！",
+    "qr_gree_005": "再见！",
+    "qr_gree_006": "我现在要走了。",
+    "qr_gree_007": "今天就到这里吧。"
+  },
+  "zh_tw": {
+    "mp_directions_replies": "方向",
+    "mp_convoy_replies": "聯運",
+    "mp_social_replies": "社交",
+    "mp_service_replies": "服務",
+    "mp_reactions_replies": "反應",
+    "mp_compliments_replies": "表揚",
+    "mp_greetings_replies": "問候 & 告別",
+    "qr_dire_001": "左轉 ｡ ",
+    "qr_dire_002": "右轉 ｡ ",
+    "qr_dire_003": "直走 ｡ ",
+    "qr_dire_004": "迴轉 ｡ ",
+    "qr_dire_005": "走錯路了!",
+    "qr_dire_006": "減速 ｡ ",
+    "qr_dire_007": "停車 ｡ ",
+    "qr_conv_001": "讓我先走!",
+    "qr_conv_002": "我跟著!",
+    "qr_conv_003": "跟著我 ｡ ",
+    "qr_conv_004": "我們休息一下吧  ｡ ",
+    "qr_conv_005": "請等我!",
+    "qr_conv_006": "查看後面!",
+    "qr_conv_007": "我去找工作!",
+    "qr_soci_001": "我們開工吧!",
+    "qr_soci_002": "準備好了嗎？",
+    "qr_soci_003": "準備好了!",
+    "qr_soci_004": "再送一次？",
+    "qr_soci_005": "合照？",
+    "qr_soci_006": "緊急停車!",
+    "qr_soci_007": "我馬上回來 ｡ ",
+    "qr_serv_001": "我去修理廠!",
+    "qr_serv_002": "我需要去修車 ｡ ",
+    "qr_serv_003": "我去升級車子 ｡",
+    "qr_serv_004": "沒油了 ｡",
+    "qr_serv_005": "撞了車!",
+    "qr_serv_006": "我們停下加油吧 ｡ ",
+    "qr_serv_007": "我們在修理廠停一下吧 ｡ ",
+    "qr_reac_001": "是的!",
+    "qr_reac_002": "不要 ｡ ",
+    "qr_reac_003": "可以 ｡ ",
+    "qr_reac_004": "沒問題 ｡ ",
+    "qr_reac_005": "好的 ｡ ",
+    "qr_reac_006": "對不起!",
+    "qr_reac_007": "糟糕了!",
+    "qr_comp_001": "謝謝!",
+    "qr_comp_002": "做得好!",
+    "qr_comp_003": "開得不錯!",
+    "qr_comp_004": "卡車不錯喔!",
+    "qr_comp_005": "拖車不錯喔!",
+    "qr_comp_006": "塗裝不錯喔!",
+    "qr_comp_007": "配件很酷!",
+    "qr_gree_001": "嗨!",
+    "qr_gree_002": "歡迎 ｡ ",
+    "qr_gree_003": "很高興見到你!",
+    "qr_gree_004": "旅途愉快!",
+    "qr_gree_005": "再見!",
+    "qr_gree_006": "我現在要離開了 ｡ ",
+    "qr_gree_007": "我今天做完了 ｡ "
+  }
+};
+
+  function currentDict(){ return LOC_DICTS[currentLocale] || {}; }
+  function locHas(key){ return Object.prototype.hasOwnProperty.call(currentDict(), key); }
+  function locGet(key){ return currentDict()[key]; }
+
+  function detectDefaultLocale(){
+    const nav = ((navigator.language || navigator.userLanguage || 'en-US') + '').toLowerCase().replace('-', '_');
+    if (LOC_DICTS[nav]) return nav;
+    const lang2 = nav.split('_')[0];
+    const preferred = { en: 'en_us', es: 'es_es', fr: 'fr_fr', pt: 'pt_pt', zh: 'zh_cn', sr: 'sr_sr', pl: 'pl_pl' };
+    if (preferred[lang2] && LOC_DICTS[preferred[lang2]]) return preferred[lang2];
+    const match = Object.keys(LOC_DICTS).find(k => k.startsWith(lang2 + '_'));
+    if (match) return match;
+    return LOC_DICTS['en_us'] ? 'en_us' : Object.keys(LOC_DICTS)[0];
+  }
+
+  let currentLocale = detectDefaultLocale();
+
+  function parseLocalization(text){
+    const dict = new Map();
+    const re = /key\[\]:\s*"((?:[^"\\]|\\.)*)"\s*\r?\n\s*val\[\]:\s*"((?:[^"\\]|\\.)*)"/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const key = m[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      const val = m[2].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      dict.set(key, val);
+    }
+    return dict;
+  }
+
+  function extractKeyName(v){
+    const m = /^@@(.*)@@$/.exec((v || "").trim());
+    return m ? m[1] : null;
+  }
 
   /* ---------------- state ---------------- */
   let state = null; // { dataId, rootId, nodes: Map(id -> node), originalFileName }
@@ -393,7 +3119,7 @@ body{
       tmp.sort((a, b) => a[0] - b[0]);
       tmp.forEach(t => children.push(t[1]));
 
-      nodes.set(id, { id, reply_text, quoted, is_group, children });
+      nodes.set(id, { id, reply_text, quoted, is_group, children, lastKnownKey: extractKeyName(reply_text) });
     }
 
     if (!dataId || !rootId || !nodes.has(rootId)) return null;
@@ -450,8 +3176,15 @@ body{
   const categoriesRoot = document.getElementById('categoriesRoot');
   const statsRow = document.getElementById('statsRow');
 
-  function isLocKey(v){
-    return /^@@.*@@$/.test((v || "").trim());
+  function escapeHtml(s){
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function fieldMode(node){
+    const key = extractKeyName(node.reply_text);
+    if (!key) return { mode: 'plain', key: null, resolved: null };
+    if (locHas(key)) return { mode: 'sub', key, resolved: locGet(key) };
+    return { mode: 'unresolved', key, resolved: null };
   }
 
   function countLeaves(node){
@@ -463,25 +3196,47 @@ body{
   }
 
   function updateStats(){
-    let groups = 0, leaves = 0;
-    state.nodes.forEach(n => { if (n.id !== state.rootId) { n.is_group ? groups++ : leaves++; } });
+    let groups = 0, leaves = 0, substituted = 0;
+    state.nodes.forEach(n => {
+      if (n.id === state.rootId) return;
+      n.is_group ? groups++ : leaves++;
+      if (fieldMode(n).mode === 'sub') substituted++;
+    });
     statsRow.innerHTML =
-      '<div class="stat-pill"><b>' + leaves + '</b>odpowiedzi</div>' +
-      '<div class="stat-pill"><b>' + groups + '</b>kategorii</div>';
+      '<div class="stat-pill"><b>' + leaves + '</b>' + escapeHtml(t('statReplies')) + '</div>' +
+      '<div class="stat-pill"><b>' + groups + '</b>' + escapeHtml(t('statCategories')) + '</div>' +
+      '<div class="stat-pill" style="color:var(--sub-color)"><b style="color:var(--sub-color)">' + substituted + '</b>' + escapeHtml(t('statSubstituted')) + '</div>';
   }
 
-  function itemIconSvg(loc){
-    if (loc) {
+  function itemIconSvg(mode){
+    if (mode === 'sub') {
+      return '<svg class="item-icon sub" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l3-3 3 3M7 4v13M20 17l-3 3-3-3M17 20V7"/></svg>';
+    }
+    if (mode === 'unresolved') {
       return '<svg class="item-icon loc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l3-3 3 3M7 4v13M20 17l-3 3-3-3M17 20V7"/></svg>';
     }
     return '<svg class="item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>';
+  }
+
+  function badgeHTML(mode, key){
+    if (mode === 'sub') {
+      return '<div class="sub-badge" title="' + escapeHtml(t('badgeSubTooltip', { key })) + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7l3-3 3 3M7 4v13M20 17l-3 3-3-3M17 20V7"/></svg>' +
+        escapeHtml(t('badgeSubPrefix')) + '&nbsp;<span class="key">@@' + escapeHtml(key) + '@@</span></div>';
+    }
+    if (mode === 'unresolved') {
+      return '<div class="sub-badge" style="color:#d9b98a" title="' + escapeHtml(t('badgeUnresolvedTooltip', { key })) + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>' +
+        escapeHtml(t('badgeUnresolvedText')) + '</div>';
+    }
+    return '';
   }
 
   function render(){
     categoriesRoot.innerHTML = "";
     const rootNode = state.nodes.get(state.rootId);
     if (!rootNode || rootNode.children.length === 0) {
-      categoriesRoot.innerHTML = '<p class="empty-note">Brak kategorii. Dodaj pierwszą poniżej.</p>';
+      categoriesRoot.innerHTML = '<p class="empty-note">' + escapeHtml(t('emptyCategories')) + '</p>';
     } else {
       rootNode.children.forEach((childId, idx) => {
         const child = state.nodes.get(childId);
@@ -491,6 +3246,21 @@ body{
     }
     updateStats();
     applySearchFilter();
+  }
+
+  function attachRevert(container, node){
+    if (!node.lastKnownKey) return;
+    const currentKey = extractKeyName(node.reply_text);
+    if (currentKey === node.lastKnownKey) return;
+    const revert = document.createElement('button');
+    revert.type = 'button';
+    revert.className = 'revert-btn';
+    revert.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11a8 8 0 118 9"/><path d="M3 11l3-3M3 11l3 3"/></svg>' + escapeHtml(t('revertBtn', { key: node.lastKnownKey }));
+    revert.addEventListener('click', () => {
+      node.reply_text = '@@' + node.lastKnownKey + '@@';
+      render();
+    });
+    container.appendChild(revert);
   }
 
   function renderCategory(node, parent, index, depth){
@@ -504,27 +3274,38 @@ body{
     const toggle = document.createElement('button');
     toggle.className = "cat-toggle open";
     toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
-    toggle.title = "Zwiń / rozwiń";
+    toggle.title = t('titleToggle');
 
     const idxTag = document.createElement('div');
     idxTag.className = "cat-index";
     idxTag.textContent = String(index + 1).padStart(2, '0');
 
+    const { mode: catMode, key: catKey, resolved: catResolved } = fieldMode(node);
+    const titleWrap = document.createElement('div');
+    titleWrap.className = "cat-title-wrap";
+    if (catMode !== 'plain') {
+      const badge = document.createElement('div');
+      badge.innerHTML = badgeHTML(catMode, catKey);
+      titleWrap.appendChild(badge.firstChild);
+    }
     const titleInput = document.createElement('input');
     titleInput.className = "cat-title";
-    titleInput.value = node.reply_text;
+    titleInput.value = catMode === 'sub' ? catResolved : node.reply_text;
     titleInput.spellcheck = false;
     titleInput.addEventListener('input', () => { node.reply_text = titleInput.value; });
+    titleInput.addEventListener('blur', () => { render(); });
+    titleWrap.appendChild(titleInput);
+    attachRevert(titleWrap, node);
 
     const countBadge = document.createElement('div');
     countBadge.className = "cat-count";
-    countBadge.textContent = countLeaves(node) + " szt.";
+    countBadge.textContent = countLeaves(node) + " " + t('itemsSuffix');
 
     const upBtn = iconButton('up', () => moveChild(parent, node.id, -1));
     const downBtn = iconButton('down', () => moveChild(parent, node.id, 1));
     const delBtn = iconButton('trash', () => deleteNode(parent, node.id), true);
 
-    head.append(toggle, idxTag, titleInput, countBadge, upBtn, downBtn, delBtn);
+    head.append(toggle, idxTag, titleWrap, countBadge, upBtn, downBtn, delBtn);
     wrap.appendChild(head);
 
     const body = document.createElement('div');
@@ -539,7 +3320,7 @@ body{
     if (node.children.length === 0) {
       const note = document.createElement('p');
       note.className = "empty-note";
-      note.textContent = "Brak odpowiedzi w tej kategorii.";
+      note.textContent = t('emptyReplies');
       body.appendChild(note);
     }
 
@@ -555,10 +3336,10 @@ body{
 
     const addItemBtn = document.createElement('button');
     addItemBtn.className = "add-item-btn";
-    addItemBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> Dodaj odpowiedź';
+    addItemBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> ' + escapeHtml(t('addReplyBtn'));
     addItemBtn.addEventListener('click', () => {
       const id = newId();
-      state.nodes.set(id, { id, reply_text: "Nowa odpowiedź", quoted: true, is_group: false, children: [] });
+      state.nodes.set(id, { id, reply_text: t('newReplyText'), quoted: true, is_group: false, children: [], lastKnownKey: null });
       node.children.push(id);
       render();
     });
@@ -576,35 +3357,46 @@ body{
     const mover = document.createElement('div');
     mover.className = "item-move";
     const up = document.createElement('button');
-    up.className = "icon-btn"; up.title = "W górę";
+    up.className = "icon-btn"; up.title = t('titleUp');
     up.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg>';
     up.addEventListener('click', () => moveChild(parent, node.id, -1));
     const down = document.createElement('button');
-    down.className = "icon-btn"; down.title = "W dół";
+    down.className = "icon-btn"; down.title = t('titleDown');
     down.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>';
     down.addEventListener('click', () => moveChild(parent, node.id, 1));
     mover.append(up, down);
 
+    const { mode, key, resolved } = fieldMode(node);
+
+    const subWrap = document.createElement('div');
+    subWrap.className = "sub-wrap";
+
+    if (mode !== 'plain') {
+      const badge = document.createElement('div');
+      badge.innerHTML = badgeHTML(mode, key);
+      subWrap.appendChild(badge.firstChild);
+    }
+
     const inputWrap = document.createElement('div');
     inputWrap.className = "item-input-wrap";
-    const loc = isLocKey(node.reply_text);
-    inputWrap.innerHTML = itemIconSvg(loc);
+    inputWrap.innerHTML = itemIconSvg(mode);
 
     const input = document.createElement('input');
-    input.className = "item-input" + (loc ? " is-loc" : "");
-    input.value = node.reply_text;
+    let cls = "item-input";
+    if (mode === 'sub') cls += " is-sub";
+    if (mode === 'unresolved') cls += " is-loc";
+    input.className = cls;
+    input.value = mode === 'sub' ? resolved : node.reply_text;
     input.spellcheck = false;
-    input.addEventListener('input', () => {
-      node.reply_text = input.value;
-      const nowLoc = isLocKey(input.value);
-      input.classList.toggle('is-loc', nowLoc);
-      inputWrap.querySelector('.item-icon').outerHTML = itemIconSvg(nowLoc);
-    });
+    input.addEventListener('input', () => { node.reply_text = input.value; });
+    input.addEventListener('blur', () => { render(); });
     inputWrap.appendChild(input);
+    subWrap.appendChild(inputWrap);
+    attachRevert(subWrap, node);
 
     const delBtn = iconButton('trash', () => deleteNode(parent, node.id), true);
 
-    row.append(mover, inputWrap, delBtn);
+    row.append(mover, subWrap, delBtn);
     return row;
   }
 
@@ -617,7 +3409,7 @@ body{
       trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0l-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7"/></svg>'
     };
     btn.innerHTML = icons[kind] || "";
-    btn.title = kind === 'trash' ? 'Usuń' : (kind === 'up' ? 'W górę' : 'W dół');
+    btn.title = kind === 'trash' ? t('titleDelete') : (kind === 'up' ? t('titleUp') : t('titleDown'));
     btn.addEventListener('click', onClick);
     return btn;
   }
@@ -640,8 +3432,10 @@ body{
 
   function deleteNode(parent, id){
     const n = state.nodes.get(id);
-    const label = n ? (n.is_group ? "kategorię" : "odpowiedź") : "element";
-    if (!confirm('Usunąć tę ' + label + '? "' + (n ? n.reply_text : '') + '"')) return;
+    const msg = n && n.is_group
+      ? t('confirmDeleteCategory', { text: n.reply_text })
+      : t('confirmDeleteReply', { text: n ? n.reply_text : '' });
+    if (!confirm(msg)) return;
     const idx = parent.children.indexOf(id);
     if (idx !== -1) parent.children.splice(idx, 1);
     deleteAllDescendants(id);
@@ -665,13 +3459,12 @@ body{
         row.classList.toggle('hidden-by-search', !match);
         if (match) anyVisible = true;
       });
-      const titleInput = cat.querySelector(':scope > .cat-head > .cat-title');
+      const titleInput = cat.querySelector(':scope > .cat-head > .cat-title-wrap > .cat-title');
       const titleMatch = titleInput && titleInput.value.toLowerCase().includes(q);
       if (titleMatch) anyVisible = true;
       cat.classList.toggle('hidden-by-search', !anyVisible);
       if (anyVisible) {
         const toggle = cat.querySelector(':scope > .cat-head > .cat-toggle');
-        const body = cat.querySelector(':scope > .cat-body');
         if (toggle && !toggle.classList.contains('open')) toggle.click();
       }
     });
@@ -688,6 +3481,54 @@ body{
   const exportBtn = document.getElementById('exportBtn');
   const loadNewBtn = document.getElementById('loadNewBtn');
   const searchBox = document.getElementById('searchBox');
+  const loadLocBtn = document.getElementById('loadLocBtn');
+  const locInput = document.getElementById('locInput');
+  const qrLangSelect = document.getElementById('qrLangSelect');
+  const uiLangSelect = document.getElementById('uiLangSelect');
+
+  /* populate quick-reply language select */
+  Object.keys(LOC_DICTS)
+    .sort((a, b) => (LOCALE_NAMES[a] || a).localeCompare(LOCALE_NAMES[b] || b))
+    .forEach(code => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = (LOCALE_NAMES[code] || code) + ' (' + code + ')';
+      qrLangSelect.appendChild(opt);
+    });
+  qrLangSelect.value = currentLocale;
+  qrLangSelect.addEventListener('change', () => {
+    currentLocale = qrLangSelect.value;
+    if (state) render();
+  });
+
+  /* UI (interface) language select */
+  uiLangSelect.value = uiLang;
+  uiLangSelect.addEventListener('change', () => {
+    uiLang = uiLangSelect.value;
+    applyUILang();
+    if (state) render();
+  });
+
+  loadLocBtn.addEventListener('click', () => locInput.click());
+  locInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const extra = parseLocalization(ev.target.result);
+      if (!LOC_DICTS[currentLocale]) LOC_DICTS[currentLocale] = {};
+      let added = 0;
+      extra.forEach((v, k) => {
+        if (!(k in LOC_DICTS[currentLocale])) added++;
+        LOC_DICTS[currentLocale][k] = v;
+      });
+      alert(t('alertLocLoaded', { n: extra.size, added }));
+      if (state) render();
+    };
+    reader.onerror = () => alert(t('alertLocReadFail'));
+    reader.readAsText(file, 'utf-8');
+    locInput.value = '';
+  });
 
   function handleFile(file){
     if (!file) return;
@@ -697,7 +3538,7 @@ body{
       const text = e.target.result;
       const parsed = parseSii(text);
       if (!parsed) {
-        alert("Nie udało się rozpoznać struktury pliku. Upewnij się, że to plik quick_reply.sii w formacie SiiNunit.");
+        alert(t('alertParseFail'));
         return;
       }
       state = parsed;
@@ -710,7 +3551,7 @@ body{
       workspace.classList.add('show');
       render();
     };
-    reader.onerror = () => alert("Nie udało się odczytać pliku.");
+    reader.onerror = () => alert(t('alertReadFail'));
     reader.readAsText(file, 'utf-8');
   }
 
@@ -738,7 +3579,7 @@ body{
   });
 
   loadNewBtn.addEventListener('click', () => {
-    if (state && !confirm("Wczytanie nowego pliku odrzuci niezapisane zmiany. Kontynuować?")) return;
+    if (state && !confirm(t('confirmLoadNew'))) return;
     workspace.classList.remove('show');
     dropStage.style.display = "flex";
     exportBtn.hidden = true;
@@ -753,7 +3594,7 @@ body{
   document.getElementById('addCatBtn').addEventListener('click', () => {
     if (!state) return;
     const id = newId();
-    state.nodes.set(id, { id, reply_text: "Nowa kategoria", quoted: true, is_group: true, children: [] });
+    state.nodes.set(id, { id, reply_text: t('newCategoryText'), quoted: true, is_group: true, children: [], lastKnownKey: null });
     state.nodes.get(state.rootId).children.push(id);
     render();
   });
@@ -771,6 +3612,9 @@ body{
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   });
+
+  /* ---------------- init ---------------- */
+  applyUILang();
 
 })();
 </script>
